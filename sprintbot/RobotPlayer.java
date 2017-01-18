@@ -17,12 +17,7 @@ public strictfp class RobotPlayer {
         // This is the RobotController object. You use it to perform actions from this robot,
         // and to get information on its current status.
         RobotPlayer.rc = rc;
-        Archon arc = new Archon(rc);
-        Soldier soldier = new Soldier(rc);
-        Gardener gard = new Gardener(rc);
-        Scout scout = new Scout(rc);
-        Tank tank = new Tank(rc);
-        Lumberjack lumber = new Lumberjack(rc);
+        BaseRobot r = null;
         float teamBullets = rc.getTeamBullets();
 		if(teamBullets >= 1000 && rc.getTeamVictoryPoints() == 900) {
 			rc.donate(teamBullets);
@@ -32,34 +27,26 @@ public strictfp class RobotPlayer {
 		}
         switch (rc.getType()) {
             case ARCHON:
-            	arc.init();
-            	while(true) {
-            		arc.run();
-            	}
+            	r = new Archon(rc);
+            	break;
             case GARDENER:
-            	gard.init();
-            	while(true) {
-            		gard.run();
-            	}
+            	r = new Gardener(rc);
+            	break;
             case SOLDIER:
-            	soldier.init();
-            	while(true)
-            		soldier.run();
+            	r = new Gardener(rc);
+            	break;
             case LUMBERJACK:
-            	lumber.init();
-                while(true) {
-                	lumber.run();
-                }
+            	r = new Lumberjack(rc);
+            	break;
             case SCOUT:
-            	scout.init();
-            	while(true) {
-            		scout.run();
-            	}
+            	r = new Scout(rc);
+            	break;
             case TANK: 
-            	tank.init();
-            	while(true) {
-            		tank.run();
-            	}
+            	r = new Scout(rc);
+            	break;
+        }
+        while (true) {
+        	r.run();
         }
 	}
 
