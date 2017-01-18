@@ -41,17 +41,7 @@ public class Gardener extends BaseRobot {
 		Clock.yield();
 	}
 	void gardenerMove() throws GameActionException{
-		MapLocation m = rc.getLocation();
-
-		for (int channel = 100; channel < GameConstants.BROADCAST_MAX_CHANNELS; channel += 4) {
-			if (rc.readBroadcast(channel) == 0) {
-				rc.broadcast(channel, (int) m.x);
-				rc.broadcast(channel+1, (int) m.y);
-				rc.broadcast(channel+2, -1);
-				rc.broadcast(channel+3, rc.getID());
-				break;
-			}
-		}
+		
 
 
 		boolean first, second, third, fourth, fifth, sixth;
@@ -100,6 +90,17 @@ public class Gardener extends BaseRobot {
 		}
 	}
 	void spawnStuff() throws GameActionException {
+		MapLocation m = rc.getLocation();
+
+		for (int channel = 100; channel < GameConstants.BROADCAST_MAX_CHANNELS; channel += 4) {
+			if (rc.readBroadcast(channel) == 0) {
+				rc.broadcast(channel, (int) m.x);
+				rc.broadcast(channel+1, (int) m.y);
+				rc.broadcast(channel+2, -1);
+				rc.broadcast(channel+3, rc.getID());
+				break;
+			}
+		}
 		TreeInfo[] trees = rc.senseNearbyTrees((float)1.5, rc.getTeam());
 		tendTrees(trees);
 		if(trees.length >= totalTrees - 1) {
