@@ -4,8 +4,10 @@ import battlecode.common.*;
 
 public class Archon extends BaseRobot {
 	int gardenersMade = 0;
+    int broadcastNum = 0;
 	static float arcDirection = 4.0f;
 	Direction teamDir;
+    float lastHealth = 40000;
 	public Archon(RobotController rc) {
 		super(rc);
 	}
@@ -17,7 +19,15 @@ public class Archon extends BaseRobot {
 		}
 	}
 	void run() throws GameActionException {
-		
+        try {
+            float hp = rc.getHealth();
+            if(lastHealth < hp) {
+                rc.broadcast(15, 1);
+            }
+            lastHealth = hp;
+        } catch (GameActionException e) {
+            
+        }
 		if (gardenersMade < 8) {
 			arcMove();
 			tryGardener();	
