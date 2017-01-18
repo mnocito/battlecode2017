@@ -82,11 +82,12 @@ public class Soldier extends BaseRobot {
 				targetRobotID = target.ID;
 				targetRobotLocation = target.location;	
 			}
-			int archonNeedsHelp = rc.readBroadcast(15);
+			int archonNeedsHelp = rc.readBroadcast(76);
 			System.out.println(archonNeedsHelp);
 			TreeInfo[] nearbyTrees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
-			if(archonNeedsHelp == 1 && hasmoved == false){
-				moveTowards(new MapLocation(rc.readBroadcast(23), rc.readBroadcast(24)));
+			if(archonNeedsHelp != -1 && hasmoved == false){
+				//moveTowards(new MapLocation(rc.readBroadcast(77), rc.readBroadcast(78)));
+				//rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.readBroadcast(77), rc.readBroadcast(78)), 0, 1000, 0);
 			}/*else if(nearbyTrees.length > 0){
 				for(TreeInfo t: nearbyTrees){
 					if(rc.canFireSingleShot()){

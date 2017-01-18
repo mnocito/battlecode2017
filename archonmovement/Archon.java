@@ -24,7 +24,9 @@ public class Archon extends BaseRobot {
 
 			float hp = rc.getHealth();
 			if(lastHealth < hp) {
-				rc.broadcast(15, 1);
+				rc.broadcast(76, 1);
+				rc.broadcast(77, (int)rc.getLocation().x);
+				rc.broadcast(78, (int)rc.getLocation().y);
 			}
 			lastHealth = hp;
 		} catch (GameActionException e) {

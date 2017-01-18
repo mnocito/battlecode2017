@@ -6,6 +6,7 @@ public class Lumberjack extends BaseRobot {
 	static int channel = -1;
 	static MapLocation target;
 	static boolean claimed = false;
+	static int addAngle = 10;
 	
 	public Lumberjack(RobotController rc) {
 		super(rc);
@@ -20,11 +21,7 @@ public class Lumberjack extends BaseRobot {
 		TreeInfo[] enemTrees = null;
 		enemTrees = rc.senseNearbyTrees(GameConstants.LUMBERJACK_STRIKE_RADIUS, rc.getTeam().opponent());
 
-		if (target != null) {
-			if(!rc.hasMoved()){
-				moveTowards(target);
-			}
-		} else if(enemTrees.length > 0){
+		if(enemTrees.length > 0){
 			chopTree(enemTrees[0]);
 			if(rc.getLocation().distanceTo(enemTrees[0].location) > GameConstants.BULLET_TREE_RADIUS + GameConstants.MAX_ROBOT_RADIUS){
 				moveToTree(enemTrees[0]);
@@ -64,16 +61,24 @@ public class Lumberjack extends BaseRobot {
 					}
 				}
 			}
+			if(!rc.hasMoved()){
+				randMove();
+			}
 		}
 		Clock.yield();
 	}
+	public void circleTowards(MapLocation loc1) throws GameActionException{
+		Direction targetDir = rc.getLocation().directionTo(loc1);
+		while(!rc.canMove(targetDir)) {
+			addAngle += 5;
+		}
+		System.out.println("trying to move around");
+		rc.move(targetDir.rotateRightDegrees(addAngle));
+	}
+	
 	public void moveTowards(MapLocation loc1) throws GameActionException{
 		int r_l = 15;
-		if(Math.random() > .5){
-			r_l = 15;
-		} else{
-			r_l = -15;
-		}
+		
 		Direction targetDir = rc.getLocation().directionTo(loc1);
 		for(int i = 0; i < 8; i++){
 			if(!rc.hasMoved() && rc.canMove(targetDir)){
@@ -82,6 +87,23 @@ public class Lumberjack extends BaseRobot {
 				targetDir = targetDir.rotateLeftDegrees(r_l);
 			}
 		}
+		rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
+	}
+	
+	public void moveTowardsCircle(MapLocation loc1, int angle) throws GameActionException{
+		angle = 10;
+		
+		
+		Direction targetDir = rc.getLocation().directionTo(loc1);
+		targetDir = targetDir.rotateLeftDegrees(angle);
+		for(int i = 0; i < 8; i++){
+			if(!rc.hasMoved() && rc.canMove(targetDir)){
+				rc.move(targetDir);
+			}else{
+				targetDir = targetDir.rotateLeftDegrees(angle);
+			}
+		}
+		addAngle = angle;
 		rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
 	}
 	void strikeBot(RobotInfo bot) {
