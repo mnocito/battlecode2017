@@ -114,7 +114,7 @@ public class Archon extends BaseRobot {
 			float avg_x = 0;
 			int num_gardeners = 0;
 			float avg_y = 0;
-			for(int i = 100; i < 100+20*3; i+=3){
+			for(int i = 100; i < 100+20*4; i+=4){
 				if(rc.readBroadcast(i) !=0) {
 					avg_x += rc.readBroadcast(i);
 					avg_y += rc.readBroadcast(i+1);
@@ -124,7 +124,9 @@ public class Archon extends BaseRobot {
 			}
 			if (num_gardeners > 0) {
 				avg_x = avg_x/num_gardeners;
+				System.out.println("avg x " + avg_x);
 				avg_y = avg_y/num_gardeners;
+				System.out.println("avg y " + avg_y);
 				MapLocation gardener_target = new MapLocation(avg_x, avg_y);
 				rc.setIndicatorDot(gardener_target, 0 , 0, 1000);
 				System.out.println(gardener_target);
