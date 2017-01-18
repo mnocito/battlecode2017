@@ -10,16 +10,15 @@ public class Archon extends BaseRobot {
 	MapLocation[] gardeners = new MapLocation[20];
 	public Archon(RobotController rc) {
 		super(rc);
-	}
-	void init() {
 		if(rc.getTeam() == Team.A) {
 			teamDir = new Direction((float) Math.PI);
 		} else {
 			teamDir = new Direction(0);
 		}
 	}
+
 	void run() throws GameActionException {
-		
+
 		if (gardenersMade < 8) {
 			arcMove();
 			tryGardener();	
@@ -66,7 +65,7 @@ public class Archon extends BaseRobot {
 						rc.hireGardener(dirList[0]);
 						gardenersMade++;
 						Clock.yield();
-					//}
+						//}
 					}
 				}
 			}
@@ -76,35 +75,11 @@ public class Archon extends BaseRobot {
 		}
 	}
 	void arcMove() {
-			try {	
-				 BulletInfo[] bullets = rc.senseNearbyBullets();
-		            if(bullets.length>0){
-		            	Direction newDir = rc.getLocation().directionTo(bullets[0].location).rotateLeftDegrees(90);
-		            	Direction newDir2 = rc.getLocation().directionTo(bullets[0].location).rotateLeftDegrees(90);
-		            	Direction newDir3 = rc.getLocation().directionTo(bullets[0].location).rotateRightDegrees(90);
-		            	if(rc.canMove(newDir)){
-		            		rc.move(newDir);
-		            		Clock.yield();
-		            	}
-		            	else if(rc.canMove(newDir2)){
-		            		rc.move(newDir2);
-		            		Clock.yield();
-		            	}
-		            	else if(rc.canMove(newDir3)){
-		            		rc.move(newDir3);
-		            		Clock.yield();
-		            	}
-		            }
-				Direction dir;
-				dir = new Direction(arcDirection);
-				if(rc.canMove(dir)) {
-					rc.move(dir);
-				} else {
-					arcDirection = (float) (arcDirection + Math.PI/((Math.random()* 2 + 4)));
-				}
-			} catch (GameActionException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+		try {	
+			dodgeBullets(); // Archons only move to dodge bullets
+		} catch (GameActionException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 }
