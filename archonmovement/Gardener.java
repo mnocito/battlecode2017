@@ -93,7 +93,7 @@ public class Gardener extends BaseRobot {
 		MapLocation m = rc.getLocation();
 
 		for (int channel = 100; channel < GameConstants.BROADCAST_MAX_CHANNELS; channel += 4) {
-			if (rc.readBroadcast(channel) == 0) {
+			if (rc.readBroadcast(channel) == 0 || rc.readBroadcast(channel+3) == rc.getID()) {
 				rc.broadcast(channel, (int) m.x);
 				rc.broadcast(channel+1, (int) m.y);
 				rc.broadcast(channel+2, -1);
