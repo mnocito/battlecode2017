@@ -67,7 +67,7 @@ public class Lumberjack extends BaseRobot {
 		}
 		Direction targetDir = rc.getLocation().directionTo(loc1);
 		for(int i = 0; i < 8; i++){
-			if(!rc.hasMoved() && rc.canMove(targetDir) && !rc.getLocation().isWithinDistance(loc1, GameConstants.MAX_ROBOT_RADIUS*2)){
+			if(!rc.hasMoved() && rc.canMove(targetDir)){
 				rc.move(targetDir);
 			}else{
 				targetDir = targetDir.rotateLeftDegrees(r_l);
