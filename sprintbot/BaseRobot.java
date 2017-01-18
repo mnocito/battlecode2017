@@ -27,23 +27,23 @@ public abstract class BaseRobot {
 
 	abstract void run() throws GameActionException;
 
-	public void moveTowards(MapLocation loc1) throws GameActionException{
-		int r_l = 15;
-		if(Math.random() > .5){
-			r_l = 15;
-		} else{
-			r_l = -15;
-		}
-		Direction targetDir = rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
-		for(int i = 0; i < 8; i++){
-			if(rc.hasMoved() && rc.canMove(targetDir)){
-				rc.move(targetDir);
-				rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
-			}else{
-				targetDir = targetDir.rotateLeftDegrees(r_l);
-			}
-		}
-	}
+//	public void moveTowards(MapLocation loc1) throws GameActionException{
+//		int r_l = 15;
+//		if(Math.random() > .5){
+//			r_l = 15;
+//		} else{
+//			r_l = -15;
+//		}
+//		Direction targetDir = rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
+//		for(int i = 0; i < 8; i++){
+//			if(!rc.hasMoved() && rc.canMove(targetDir)){
+//				rc.move(targetDir);
+//				rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
+//			}else{
+//				targetDir = targetDir.rotateLeftDegrees(r_l);
+//			}
+//		}
+//	}
 
 	void dodgeBullets() throws GameActionException{
 		BulletInfo[] bullets = rc.senseNearbyBullets();

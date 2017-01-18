@@ -8,8 +8,6 @@ public class Scout extends BaseRobot {
 	Team myTeam = rc.getTeam();
 	public Scout(RobotController rc) {
 		super(rc);
-	}
-	public void init() {
 		if(myTeam == Team.A) {
 			scoutDir = (float) Math.PI;
 		} else {
@@ -28,9 +26,7 @@ public class Scout extends BaseRobot {
 			if (robots.length > 0) {
 				if(rc.readBroadcast(11)!= robots[0].getID() ){
 					rc.broadcast(9, (int)robots[0].getLocation().x);
-					System.out.println(robots[0].getLocation().x);
 					rc.broadcast(10, (int)robots[0].getLocation().y);
-					System.out.println(robots[0].getLocation().y);
 					rc.broadcast(11, (int)robots[0].getID());//target ID
 					rc.broadcast(12, (int)robots[0].health);
 				}

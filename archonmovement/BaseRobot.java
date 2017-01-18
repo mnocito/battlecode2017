@@ -1,7 +1,7 @@
 package archonmovement;
 
 import battlecode.common.*;
-public class BaseRobot {
+public abstract class BaseRobot {
 	static float moveDir = 0;
 	public static RobotController rc;
 	static Direction[] dirList = {new Direction((float) -2.0943952), new Direction((float) -1.0471976), new Direction((float) 0), new Direction((float) 1.0471976), new Direction((float) 2.0943952), new Direction((float) -3.1415927)};
@@ -19,6 +19,8 @@ public class BaseRobot {
     static boolean tryMove(Direction dir) throws GameActionException {
         return tryMove(dir,20,3);
     }
+    
+    abstract void run() throws GameActionException;
 
     /**
      * Attempts to move in a given direction, while avoiding small obstacles direction in the path.

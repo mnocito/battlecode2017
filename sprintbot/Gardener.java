@@ -18,14 +18,13 @@ public class Gardener extends BaseRobot {
 	static float gardDirection = 4.0f;
 	public Gardener(RobotController rc) {
 		super(rc);
-	}
-	void init() {
 		initDirList(rc.getTeam());
 		amts[0] = 0;
 		amts[1] = 0;
 		amts[2] = 0;
 		amts[3] = 0;
 	}
+
 	void run() throws GameActionException {
 		roundsExisted++;
 		RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());

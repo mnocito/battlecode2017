@@ -13,22 +13,16 @@ public class Lumberjack extends BaseRobot {
 	}
 	
 	public void run() throws GameActionException {
-		TreeInfo[] trees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
+		TreeInfo[] trees = rc.senseNearbyTrees(GameConstants.LUMBERJACK_STRIKE_RADIUS, Team.NEUTRAL);
 		TreeInfo[] enemTrees = null;
-		if(rc.getTeam() == Team.A){
-			enemTrees = rc.senseNearbyTrees(-1, Team.B);
-		}
+		enemTrees = rc.senseNearbyTrees(GameConstants.LUMBERJACK_STRIKE_RADIUS, rc.getTeam().opponent());
 		
-		if(rc.getTeam() == Team.B){
-			enemTrees = rc.senseNearbyTrees(-1, Team.A);
-		}
 		if(enemTrees.length > 0){
 			chopTree(enemTrees[0]);
 			if(rc.getLocation().distanceTo(enemTrees[0].location) > GameConstants.BULLET_TREE_RADIUS + GameConstants.MAX_ROBOT_RADIUS){
 				moveToTree(enemTrees[0]);
 			}
-		}
-		if(trees.length > 0) {
+		} else if(trees.length > 0) {
 			chopTree(trees[0]);
 			if(rc.getLocation().distanceTo(trees[0].location) > GameConstants.BULLET_TREE_RADIUS + GameConstants.MAX_ROBOT_RADIUS){
 				moveToTree(trees[0]);

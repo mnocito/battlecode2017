@@ -8,9 +8,6 @@ public class Lumberjack extends BaseRobot {
 		super(rc);
 		// TODO Auto-generated constructor stub
 	}
-	public void init() {
-		
-	}
 	
 	public void run() throws GameActionException {
 		TreeInfo[] trees = rc.senseNearbyTrees(-1, Team.NEUTRAL);

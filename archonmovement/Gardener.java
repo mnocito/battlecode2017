@@ -74,8 +74,12 @@ public class Gardener extends BaseRobot {
 			try {		
 				Direction dir;
 				dir = new Direction(gardDirection);
+				MapLocation m = rc.getLocation();
 				if(rc.canMove(dir)) {
 					rc.move(dir);
+					rc.broadcast(9, (int) m.x);
+					rc.broadcast(10, (int) m.y);
+					
 				} else {
 					gardDirection = (float) (gardDirection + Math.PI/((Math.random()* 2 + 4)));
 				}
