@@ -56,7 +56,13 @@ public class Soldier extends BaseRobot {
                 }
             }else{
             	RobotInfo target = closestRobot(robots);
-            	moveTowards(target.getLocation());
+            	if(rc.canMove(target.getLocation())){
+            		rc.move(target.location);;
+            	}else if(rc.canMove(rc.getLocation().directionTo(target.location), 1)){
+            		rc.move(rc.getLocation().directionTo(target.location), 1);
+            	}else{
+            		moveTowards(target.getLocation());
+            	}
             	boolean willHitFriend = false;
             	for(RobotInfo r: friendlies){
         			if(Math.abs(rc.getLocation().directionTo(r.location).radians - rc.getLocation().directionTo(target.location).radians) < .4 ){
@@ -64,6 +70,7 @@ public class Soldier extends BaseRobot {
         			rc.setIndicatorDot(r.location, 0, 1000, 0);
         			}		
         		}
+            	
             	if(rc.canFirePentadShot()&& !willHitFriend){
             		rc.firePentadShot(rc.getLocation().directionTo(target.getLocation()));
             	}else if(rc.canFireTriadShot()&& !willHitFriend){
@@ -71,7 +78,8 @@ public class Soldier extends BaseRobot {
             	}else if(rc.canFireSingleShot()&& !willHitFriend){
             		rc.fireSingleShot((rc.getLocation().directionTo(target.getLocation())));
             	}
-            	targetRobotID = rc.readBroadcast(target.ID);
+            	
+            	targetRobotID = target.ID;
                 targetRobotLocation = target.location;	
             }
             int archonNeedsHelp = rc.readBroadcast(15);

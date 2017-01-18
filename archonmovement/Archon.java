@@ -5,14 +5,20 @@ import battlecode.common.*;
 public class Archon extends BaseRobot {
 	int gardenersMade = 0;
 	static float arcDirection = 4.0f;
+	Direction teamDir;
 	public Archon(RobotController rc) {
 		super(rc);
 	}
 	void init() {
-		
+		if(rc.getTeam() == Team.A) {
+			teamDir = new Direction((float) Math.PI);
+		} else {
+			teamDir = new Direction(0);
+		}
 	}
-	void run() {
-		if (gardenersMade < 10) {
+	void run() throws GameActionException {
+		
+		if (gardenersMade < 8) {
 			arcMove();
 			tryGardener();	
 		} else {
@@ -29,17 +35,29 @@ public class Archon extends BaseRobot {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		} else if(rc.canMove(teamDir)) {
+			try {
+				rc.move(teamDir);
+			} catch (GameActionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	void tryGardener() {
 		try {
 			int curRound = rc.getRoundNum();
-			if(curRound % 30 == 0) {
+
+			if(curRound % 30 == 0 || curRound < 10) {
 				System.out.println("current round: " + curRound);
-				Direction dir = new Direction(0);
-				if(rc.canHireGardener(dir)) {
-					rc.hireGardener(dir);
-					gardenersMade++;
+				for(int i = 0; i < dirList.length; i++) {
+					//if(rc.readBroadcast(15) > 0){
+					if(rc.canHireGardener(dirList[0])) {
+						rc.hireGardener(dirList[0]);
+						gardenersMade++;
+						Clock.yield();
+					//}
+					}
 				}
 			}
 		} catch (GameActionException e) {
@@ -48,7 +66,25 @@ public class Archon extends BaseRobot {
 		}
 	}
 	void arcMove() {
-			try {		
+			try {	
+				 BulletInfo[] bullets = rc.senseNearbyBullets();
+		            if(bullets.length>0){
+		            	Direction newDir = rc.getLocation().directionTo(bullets[0].location).rotateLeftDegrees(90);
+		            	Direction newDir2 = rc.getLocation().directionTo(bullets[0].location).rotateLeftDegrees(90);
+		            	Direction newDir3 = rc.getLocation().directionTo(bullets[0].location).rotateRightDegrees(90);
+		            	if(rc.canMove(newDir)){
+		            		rc.move(newDir);
+		            		Clock.yield();
+		            	}
+		            	else if(rc.canMove(newDir2)){
+		            		rc.move(newDir2);
+		            		Clock.yield();
+		            	}
+		            	else if(rc.canMove(newDir3)){
+		            		rc.move(newDir3);
+		            		Clock.yield();
+		            	}
+		            }
 				Direction dir;
 				dir = new Direction(arcDirection);
 				if(rc.canMove(dir)) {

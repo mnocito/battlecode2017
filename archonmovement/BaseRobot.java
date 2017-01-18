@@ -3,7 +3,7 @@ package archonmovement;
 import battlecode.common.*;
 public class BaseRobot {
 	static float moveDir = 0;
-	static RobotController rc;
+	public static RobotController rc;
 	static Direction[] dirList = {new Direction((float) -2.0943952), new Direction((float) -1.0471976), new Direction((float) 0), new Direction((float) 1.0471976), new Direction((float) 2.0943952), new Direction((float) -3.1415927)};
 	static Direction[] dirA =  {new Direction((float) 1.0471976), new Direction((float) 2.0943952), new Direction((float) -3.1415927), new Direction((float) -2.0943952), new Direction((float) -1.0471976), new Direction((float) 0)};
 	public BaseRobot(RobotController rc) {

@@ -12,14 +12,39 @@ public class Lumberjack extends BaseRobot {
 		
 	}
 	
-	public void run() {
+	public void run() throws GameActionException {
 		TreeInfo[] trees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
+		TreeInfo[] enemTrees = null;
+		if(rc.getTeam() == Team.A){
+			enemTrees = rc.senseNearbyTrees(-1, Team.B);
+		}
+		
+		if(rc.getTeam() == Team.B){
+			enemTrees = rc.senseNearbyTrees(-1, Team.A);
+		}
+		if(enemTrees.length > 0){
+			chopTree(enemTrees[0]);
+			if(rc.getLocation().distanceTo(enemTrees[0].location) > GameConstants.BULLET_TREE_RADIUS + GameConstants.MAX_ROBOT_RADIUS){
+				moveToTree(enemTrees[0]);
+			}
+		}
 		if(trees.length > 0) {
 			chopTree(trees[0]);
-			moveToTree(trees[0]);
+			if(rc.getLocation().distanceTo(trees[0].location) > GameConstants.BULLET_TREE_RADIUS + GameConstants.MAX_ROBOT_RADIUS){
+				moveToTree(trees[0]);
+			}
+			
 		} else {
 			RobotInfo[] robots = rc.senseNearbyRobots(2, rc.getTeam().opponent());
 			if(robots.length > 0) {
+				if (rc.readBroadcast(11) != robots[0].getID()) {
+					rc.broadcast(9, (int) robots[0].getLocation().x);
+					System.out.println(robots[0].getLocation().x);
+					rc.broadcast(10, (int) robots[0].getLocation().y);
+					System.out.println(robots[0].getLocation().y);
+					rc.broadcast(11, (int) robots[0].getID());// target ID
+					rc.broadcast(12, (int) robots[0].health);
+				}
 				strikeBot(robots[0]);
 				moveToBot(robots[0]);
 			} else {
@@ -42,7 +67,7 @@ public class Lumberjack extends BaseRobot {
 			}
 		}
 	}
-	void moveToBot(RobotInfo tree) {
+	void moveToBot(RobotInfo tree) throws GameActionException {
 		Direction dirToMove = rc.getLocation().directionTo(tree.location);
 		if(rc.canMove(dirToMove)) {
 			try {
@@ -53,7 +78,30 @@ public class Lumberjack extends BaseRobot {
 				e.printStackTrace();
 			}
 		} else {
-			randMove();
+			if(rc.readBroadcast(12) != 10000){
+                if(rc.canMove(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)))){
+                	rc.move(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
+                }else{
+                	if(rc.canMove(new Direction(0))){
+                		rc.move(new Direction(0));
+                	} else{
+                		if(rc.canMove(new Direction((float)Math.PI))){
+                			rc.move(new Direction((float)Math.PI));
+                		}
+                	}
+                }
+            }else{
+            	Direction ranDir = new Direction(BaseRobot.randomWithRange(0, (int)Math.PI * 2));
+            	if(rc.canMove(ranDir)){
+            		rc.move(ranDir);
+            	}
+            	else{
+            		if(rc.canMove(new Direction(0))){
+            			rc.move(new Direction(0));
+            		}
+            		
+            	}
+            }
 			Clock.yield();
 		}
 	}
@@ -77,7 +125,7 @@ public class Lumberjack extends BaseRobot {
 			}
 		}
 	}
-	void moveToTree(TreeInfo tree) {
+	void moveToTree(TreeInfo tree) throws GameActionException {
 			Direction dirToMove = rc.getLocation().directionTo(tree.location);
 			if(rc.canMove(dirToMove)) {
 				try {
@@ -88,7 +136,30 @@ public class Lumberjack extends BaseRobot {
 					e.printStackTrace();
 				}
 			} else {
-				randMove();
+				if(rc.readBroadcast(12) != 10000){
+	                if(rc.canMove(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)))){
+	                	rc.move(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
+	                }else{
+	                	if(rc.canMove(new Direction(0))){
+	                		rc.move(new Direction(0));
+	                	} else{
+	                		if(rc.canMove(new Direction((float)Math.PI))){
+	                			rc.move(new Direction((float)Math.PI));
+	                		}
+	                	}
+	                }
+                }else{
+                	Direction ranDir = new Direction(BaseRobot.randomWithRange(0, (int)Math.PI * 2));
+                	if(rc.canMove(ranDir)){
+                		rc.move(ranDir);
+                	}
+                	else{
+                		if(rc.canMove(new Direction(0))){
+                			rc.move(new Direction(0));
+                		}
+                		
+                	}
+                }
 				Clock.yield();
 			}
 	}

@@ -1,4 +1,6 @@
 package archonmovement;
+import com.sun.xml.internal.rngom.parse.host.Base;
+
 import battlecode.common.*;
 
 public strictfp class RobotPlayer {
@@ -9,20 +11,25 @@ public strictfp class RobotPlayer {
      * If this method returns, the robot dies!
     **/
     @SuppressWarnings("unused")
+	
     public static void run(RobotController rc) throws GameActionException {
 
         // This is the RobotController object. You use it to perform actions from this robot,
         // and to get information on its current status.
         RobotPlayer.rc = rc;
         Archon arc = new Archon(rc);
+        Soldier soldier = new Soldier(rc);
         Gardener gard = new Gardener(rc);
         Scout scout = new Scout(rc);
         Tank tank = new Tank(rc);
         Lumberjack lumber = new Lumberjack(rc);
         float teamBullets = rc.getTeamBullets();
-        if(teamBullets >= 10000) {
-        	rc.donate(teamBullets);
-        }
+		if(teamBullets >= 1000 && rc.getTeamVictoryPoints() == 900) {
+			rc.donate(teamBullets);
+		}
+        if(teamBullets > 1500){
+			rc.donate(1000);
+		}
         switch (rc.getType()) {
             case ARCHON:
             	arc.init();
@@ -35,8 +42,9 @@ public strictfp class RobotPlayer {
             		gard.run();
             	}
             case SOLDIER:
-                runSoldier();
-                break;
+            	soldier.init();
+            	while(true)
+            		soldier.run();
             case LUMBERJACK:
             	lumber.init();
                 while(true) {
@@ -62,33 +70,7 @@ public strictfp class RobotPlayer {
 
         // The code you want your robot to perform every round should be in this loop
         while (true) {
-
-            // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
-            try {
-                MapLocation myLocation = rc.getLocation();
-
-                // See if there are any nearby enemy robots
-                RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
-
-                // If there are some...
-                if (robots.length > 0) {
-                    // And we have enough bullets, and haven't attacked yet this turn...
-                    if (rc.canFireSingleShot()) {
-                        // ...Then fire a bullet in the direction of the enemy.
-                        rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
-                    }
-                }
-
-                // Move randomly
-           //     tryMove(randomDirection());
-
-                // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
-                Clock.yield();
-
-            } catch (Exception e) {
-                System.out.println("Soldier Exception");
-                e.printStackTrace();
-            }
+        	
         }
     }
 
