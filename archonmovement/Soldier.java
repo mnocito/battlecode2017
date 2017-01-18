@@ -87,13 +87,13 @@ public class Soldier extends BaseRobot {
 			TreeInfo[] nearbyTrees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
 			if(archonNeedsHelp == 1 && hasmoved == false){
 				moveTowards(new MapLocation(rc.readBroadcast(23), rc.readBroadcast(24)));
-			}else if(nearbyTrees.length > 0){
+			}/*else if(nearbyTrees.length > 0){
 				for(TreeInfo t: nearbyTrees){
 					if(rc.canFireSingleShot()){
 						rc.fireSingleShot(rc.getLocation().directionTo(t.location));
 					}
 				}
-			}
+			}*/
 
 			TreeInfo[] enemyTrees = rc.senseNearbyTrees(-1, rc.getTeam().opponent());
 			if(enemyTrees.length > 0){
@@ -129,7 +129,7 @@ public class Soldier extends BaseRobot {
 		} else{
 			r_l = -15;
 		}
-		Direction targetDir = rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
+		Direction targetDir = rc.getLocation().directionTo(loc1);
 		for(int i = 0; i < 8; i++){
 			if(hasmoved == false && rc.canMove(targetDir)){
 				rc.move(targetDir);

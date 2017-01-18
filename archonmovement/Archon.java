@@ -45,6 +45,19 @@ public class Archon extends BaseRobot {
 		}
 		Clock.yield();
 	}
+	public void moveTowards(MapLocation loc1) throws GameActionException{
+		int r_l = 15;
+		Direction targetDir = rc.getLocation().directionTo(loc1);
+		for(int i = 0; i < 8; i++){
+			if(rc.hasMoved() == false && rc.canMove(targetDir)){
+				rc.move(targetDir);
+				rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
+				System.out.println(rc.hasMoved());
+			}else{
+				targetDir = targetDir.rotateLeftDegrees(r_l);
+			}
+		}
+	}
 	void goToCorner() {
 		Direction down = new Direction((float) Math.PI/2);
 		if(rc.canMove(down)) {
@@ -120,22 +133,16 @@ public class Archon extends BaseRobot {
 				avg_x = avg_x/num_gardeners;
 				avg_y = avg_y/num_gardeners;
 				MapLocation gardener_target = new MapLocation(avg_x, avg_y);
-				if(num_gardeners == 0){
-					dir = new Direction(arcDirection);
-					if(rc.canMove(dir)) {
-						rc.move(dir);
-					} else {
-						arcDirection = (float) (arcDirection + Math.PI/((Math.random()* 2 + 4)));
-					}
-				}else{
+				
 					try {
-						rc.move(gardener_target);
+						moveTowards(gardener_target);
 						rc.setIndicatorDot(gardener_target, 1000, 0, 1000);
 					} catch(GameActionException e) {
 						e.printStackTrace();
 					}
-					
-				}
+					moveTowards(gardener_target);
+					System.out.println("move towards");
+				
 			}
 		} catch (GameActionException e1) {
 			// TODO Auto-generated catch block
