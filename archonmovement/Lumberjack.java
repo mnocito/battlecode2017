@@ -69,11 +69,11 @@ public class Lumberjack extends BaseRobot {
 		for(int i = 0; i < 8; i++){
 			if(!rc.hasMoved() && rc.canMove(targetDir) && !rc.getLocation().isWithinDistance(loc1, GameConstants.MAX_ROBOT_RADIUS*2)){
 				rc.move(targetDir);
-				rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
 			}else{
 				targetDir = targetDir.rotateLeftDegrees(r_l);
 			}
 		}
+		rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
 	}
 	void strikeBot(RobotInfo bot) {
 		RobotInfo[] ourBots = rc.senseNearbyRobots(2, rc.getTeam());
