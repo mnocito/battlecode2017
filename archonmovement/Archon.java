@@ -77,8 +77,9 @@ public class Archon extends BaseRobot {
 				System.out.println("current round: " + curRound);
 				for(int i = 0; i < dirList.length; i++) {
 					//if(rc.readBroadcast(15) > 0){
-					if(rc.canHireGardener(dirList[0])) {
-						rc.hireGardener(dirList[0]);
+					
+					if(rc.canHireGardener(dirList[i])) {
+						rc.hireGardener(dirList[i]);
 						gardenersMade++;
 						Clock.yield();
 						//}
