@@ -122,6 +122,7 @@ public class Archon extends BaseRobot {
 					num_gardeners++;
 				}
 			}
+			System.out.println("gardener number: "+num_gardeners);
 			if (num_gardeners > 0) {
 				avg_x = avg_x/num_gardeners;
 				System.out.println("avg x " + avg_x);
