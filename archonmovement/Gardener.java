@@ -1,7 +1,5 @@
 package archonmovement;
-
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 
 import battlecode.common.*;
@@ -14,6 +12,7 @@ public class Gardener extends BaseRobot {
 	int addedNum = 0;
 	boolean movement = true;
 	int totalTrees = 0;
+	int roundsNotMoved = 0;
 	static float gardDirection = 4.0f;
 	public Gardener(RobotController rc) {
 		super(rc);
@@ -88,13 +87,18 @@ public class Gardener extends BaseRobot {
 			}
 		}
 	}
-	void spawnStuff() {
+	void spawnStuff() throws GameActionException {
 		TreeInfo[] trees = rc.senseNearbyTrees((float)1.5, rc.getTeam());
 		tendTrees(trees);
 		if(trees.length >= totalTrees - 1) {
 			spawnRobots();
 		} else {
 			spawnTrees(trees);
+			if(roundsNotMoved == 0){
+				roundsNotMoved = 1;
+				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 1,(int) rc.getLocation().x);
+				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 2,(int) rc.getLocation().y);
+			}
 		}
 	}
 	void tendTrees(TreeInfo[] trees) {
