@@ -8,8 +8,6 @@ public class Scout extends BaseRobot {
 	Team myTeam = rc.getTeam();
 	public Scout(RobotController rc) {
 		super(rc);
-	}
-	public void init() {
 		if(myTeam == Team.A) {
 			scoutDir = (float) Math.PI;
 		} else {
@@ -28,14 +26,31 @@ public class Scout extends BaseRobot {
 			if (robots.length > 0) {
 				if(rc.readBroadcast(11)!= robots[0].getID() ){
 					rc.broadcast(9, (int)robots[0].getLocation().x);
-					System.out.println(robots[0].getLocation().x);
 					rc.broadcast(10, (int)robots[0].getLocation().y);
-					System.out.println(robots[0].getLocation().y);
 					rc.broadcast(11, (int)robots[0].getID());//target ID
 					rc.broadcast(12, (int)robots[0].health);
 				}
 				
 			} 
+			TreeInfo[] neutrees = rc.senseNearbyTrees(RobotType.SCOUT.sensorRadius, Team.NEUTRAL);
+			TreeInfo neuTree = null;
+			for(TreeInfo t : neutrees) {
+				if(t.containedBullets > 0) {
+					neuTree = t;
+					break;
+				}
+			}
+			if(neuTree != null) {
+				System.out.println("trying to find neutral tree");
+				rc.setIndicatorDot(neuTree.getLocation(), 255, 50, 20);
+				if(rc.canShake(neuTree.getLocation())) {
+					rc.shake(neuTree.getLocation());
+				}
+				if(rc.canMove(myLocation.directionTo(neuTree.getLocation()))) {
+					System.out.println("moving doe");
+					rc.move(myLocation.directionTo(neuTree.getLocation()));
+				}
+			}
 			TreeInfo[] trees = rc.senseNearbyTrees(RobotType.GARDENER.sensorRadius, enemy);
 			if(trees.length > 0) {
 				MapLocation enemLoc = trees[0].location;
@@ -93,5 +108,9 @@ public class Scout extends BaseRobot {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+	public void init() {
+		// TODO Auto-generated method stub
+		
 	}
 }
