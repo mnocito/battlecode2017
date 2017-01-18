@@ -5,7 +5,6 @@ import battlecode.common.*;
 public class Archon extends BaseRobot {
 	int gardenersMade = 0;
 	int broadcastNum = 0;
-	MapLocation[] gardeners = new MapLocation[20];
 	static float arcDirection = 4.0f;
 	Direction teamDir;
 	float lastHealth = 40000;
@@ -20,13 +19,7 @@ public class Archon extends BaseRobot {
 		}
 	}
 	void run() throws GameActionException {
-		for(int i = 100; i < 100+20*3; i+=3){
-			if(rc.readBroadcast(i) !=0){
-				if(i!= 100){
-					gardeners[(i-100)/3] =  new MapLocation(rc.readBroadcast(i), rc.readBroadcast(i+1));
-				}
-			}
-		}
+		
 		try {
 
 			float hp = rc.getHealth();
@@ -121,11 +114,11 @@ public class Archon extends BaseRobot {
 			float avg_x = 0;
 			int num_gardeners = 0;
 			float avg_y = 0;
-
-			for(int i = 0; i < gardeners.length ; i++){
-				if(gardeners[i]!= null){
-					avg_x += gardeners[i].x;
-					avg_y += gardeners[i].y;
+			for(int i = 100; i < 100+20*3; i+=3){
+				if(rc.readBroadcast(i) !=0) {
+					avg_x += rc.readBroadcast(i);
+					avg_y += rc.readBroadcast(i+1);
+					
 					num_gardeners++;
 				}
 			}
@@ -133,7 +126,9 @@ public class Archon extends BaseRobot {
 				avg_x = avg_x/num_gardeners;
 				avg_y = avg_y/num_gardeners;
 				MapLocation gardener_target = new MapLocation(avg_x, avg_y);
-				
+				rc.setIndicatorDot(gardener_target, 0 , 0, 1000);
+				System.out.println(gardener_target);
+
 					try {
 						moveTowards(gardener_target);
 						rc.setIndicatorDot(gardener_target, 1000, 0, 1000);
