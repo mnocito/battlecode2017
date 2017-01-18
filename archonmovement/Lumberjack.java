@@ -18,7 +18,11 @@ public class Lumberjack extends BaseRobot {
 		TreeInfo[] enemTrees = null;
 		enemTrees = rc.senseNearbyTrees(GameConstants.LUMBERJACK_STRIKE_RADIUS, rc.getTeam().opponent());
 		
-		if(enemTrees.length > 0){
+		if (target != null) {
+			if(!rc.hasMoved()){
+				moveTowards(target);
+			}
+		} else if(enemTrees.length > 0){
 			chopTree(enemTrees[0]);
 			if(rc.getLocation().distanceTo(enemTrees[0].location) > GameConstants.BULLET_TREE_RADIUS + GameConstants.MAX_ROBOT_RADIUS){
 				moveToTree(enemTrees[0]);
@@ -49,12 +53,9 @@ public class Lumberjack extends BaseRobot {
 						target = new MapLocation(rc.readBroadcast(i), rc.readBroadcast(i+1));
 					}
 				}
-			}
-			
-			if (target != null) {
-				if(!rc.hasMoved()){
-					moveTowards(target);
-				}
+//				if (!rc.hasMoved()) {
+//					randMove();
+//				}
 			}
 		}
 		Clock.yield();
@@ -66,7 +67,7 @@ public class Lumberjack extends BaseRobot {
 		} else{
 			r_l = -15;
 		}
-		Direction targetDir = rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
+		Direction targetDir = rc.getLocation().directionTo(loc1);
 		for(int i = 0; i < 8; i++){
 			if(!rc.hasMoved() && rc.canMove(targetDir)){
 				rc.move(targetDir);
