@@ -3,7 +3,8 @@ package archonmovement;
 import battlecode.common.*;
 
 public class Lumberjack extends BaseRobot {
-	
+	static int channel = -1;
+	static MapLocation target;
 	public Lumberjack(RobotController rc) {
 		super(rc);
 		// TODO Auto-generated constructor stub
@@ -40,20 +41,47 @@ public class Lumberjack extends BaseRobot {
 					rc.broadcast(12, (int) robots[0].health);
 				}
 				strikeBot(robots[0]);
-				moveToBot(robots[0]);
-			} else {
-				randMove();
+			}
+			if (channel == -1) {
+				for (int i = 100; i < GameConstants.BROADCAST_MAX_CHANNELS; i+=3) {
+					if (rc.readBroadcast(i+2) < 0) { // if this is not a "claimed" gardener, then claim it.
+						rc.broadcast(i+2, rc.getID());
+						target = new MapLocation(rc.readBroadcast(i), rc.readBroadcast(i+1));
+					}
+				}
+			}
+			
+			if (target != null) {
+				if(!rc.hasMoved()){
+					moveTowards(target);
+				}
 			}
 		}
 		Clock.yield();
 	}
+	public void moveTowards(MapLocation loc1) throws GameActionException{
+		int r_l = 15;
+		if(Math.random() > .5){
+			r_l = 15;
+		} else{
+			r_l = -15;
+		}
+		Direction targetDir = rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
+		for(int i = 0; i < 8; i++){
+			if(!rc.hasMoved() && rc.canMove(targetDir)){
+				rc.move(targetDir);
+				rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
+			}else{
+				targetDir = targetDir.rotateLeftDegrees(r_l);
+			}
+		}
+	}
 	void strikeBot(RobotInfo bot) {
 		RobotInfo[] ourBots = rc.senseNearbyRobots(2, rc.getTeam());
 		if(ourBots.length < 2) {
-			if(rc.canStrike()) {
+			if(!rc.hasAttacked() && rc.canStrike()) {
 				try {
 					rc.strike();
-					Clock.yield();
 				} catch (GameActionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -61,49 +89,11 @@ public class Lumberjack extends BaseRobot {
 			}
 		}
 	}
-	void moveToBot(RobotInfo tree) throws GameActionException {
-		Direction dirToMove = rc.getLocation().directionTo(tree.location);
-		if(rc.canMove(dirToMove)) {
-			try {
-				rc.move(dirToMove);
-				Clock.yield();
-			} catch (GameActionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			if(rc.readBroadcast(12) != 10000){
-                if(rc.canMove(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)))){
-                	rc.move(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
-                }else{
-                	if(rc.canMove(new Direction(0))){
-                		rc.move(new Direction(0));
-                	} else{
-                		if(rc.canMove(new Direction((float)Math.PI))){
-                			rc.move(new Direction((float)Math.PI));
-                		}
-                	}
-                }
-            }else{
-            	Direction ranDir = new Direction(BaseRobot.randomWithRange(0, (int)Math.PI * 2));
-            	if(rc.canMove(ranDir)){
-            		rc.move(ranDir);
-            	}
-            	else{
-            		if(rc.canMove(new Direction(0))){
-            			rc.move(new Direction(0));
-            		}
-            		
-            	}
-            }
-			Clock.yield();
-		}
-	}
+	
 	void chopTree(TreeInfo tree) {
 		if(rc.canChop(tree.ID)) {
 			try {
 				rc.chop(tree.ID);
-				Clock.yield();
 			} catch (GameActionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -112,7 +102,6 @@ public class Lumberjack extends BaseRobot {
 		if(rc.canShake(tree.ID)) {
 			try {
 				rc.shake(tree.ID);
-				Clock.yield();
 			} catch (GameActionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -124,37 +113,10 @@ public class Lumberjack extends BaseRobot {
 			if(rc.canMove(dirToMove)) {
 				try {
 					rc.move(dirToMove);
-					Clock.yield();
 				} catch (GameActionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			} else {
-				if(rc.readBroadcast(12) != 10000){
-	                if(rc.canMove(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)))){
-	                	rc.move(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
-	                }else{
-	                	if(rc.canMove(new Direction(0))){
-	                		rc.move(new Direction(0));
-	                	} else{
-	                		if(rc.canMove(new Direction((float)Math.PI))){
-	                			rc.move(new Direction((float)Math.PI));
-	                		}
-	                	}
-	                }
-                }else{
-                	Direction ranDir = new Direction(BaseRobot.randomWithRange(0, (int)Math.PI * 2));
-                	if(rc.canMove(ranDir)){
-                		rc.move(ranDir);
-                	}
-                	else{
-                		if(rc.canMove(new Direction(0))){
-                			rc.move(new Direction(0));
-                		}
-                		
-                	}
-                }
-				Clock.yield();
 			}
 	}
 }

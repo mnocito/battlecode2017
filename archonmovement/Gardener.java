@@ -29,7 +29,7 @@ public class Gardener extends BaseRobot {
 		RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 		if(enemies.length > 0){
 			//for(RobotInfo r :enemies){
-				//if(r.isRobot())
+			//if(r.isRobot())
 			///}
 			rc.broadcast(50, (int)enemies[0].getLocation().x);
 		}
@@ -40,7 +40,19 @@ public class Gardener extends BaseRobot {
 		}
 		Clock.yield();
 	}
-	void gardenerMove() {
+	void gardenerMove() throws GameActionException{
+		MapLocation m = rc.getLocation();
+
+		for (int channel = 100; channel < GameConstants.BROADCAST_MAX_CHANNELS; channel += 3) {
+			if (rc.readBroadcast(channel) == 0) {
+				rc.broadcast(channel, (int) m.x);
+				rc.broadcast(channel+1, (int) m.y);
+				rc.broadcast(channel+2, -1);
+				break;
+			}
+		}
+
+
 		boolean first, second, third, fourth, fifth, sixth;
 		first = rc.canPlantTree(dirList[0]);
 		second = rc.canPlantTree(dirList[1]);
@@ -48,37 +60,36 @@ public class Gardener extends BaseRobot {
 		fourth = rc.canPlantTree(dirList[3]);
 		fifth = rc.canPlantTree(dirList[4]);
 		sixth = rc.canPlantTree(dirList[5]);
-			if(first && second && third && fourth && fifth && sixth) {
-				movement = false;
-				totalTrees = 6;
-				return;
-			} else if(first && third && fifth && roundsExisted > 80) {
-				totalTrees = 3;
-				addedNum = 0;
-				movement = false;
-			} else if(second && fourth && sixth && roundsExisted > 80) {
-				totalTrees = 3;
-				addedNum = 1;
-				movement = false;
-			} else if(first && fourth && roundsExisted > 120) {
-				totalTrees = 2;
-				addedNum = 0;
-				movement = false;
-			} else if(second && fifth && roundsExisted > 120) {
-				totalTrees = 2;
-				addedNum = 1;
-				movement = false;
-			}
-		 else {
+
+		if(first && second && third && fourth && fifth && sixth) {
+			movement = false;
+			totalTrees = 6;
+			return;
+		} else if(first && third && fifth && roundsExisted > 80) {
+			totalTrees = 3;
+			addedNum = 0;
+			movement = false;
+		} else if(second && fourth && sixth && roundsExisted > 80) {
+			totalTrees = 3;
+			addedNum = 1;
+			movement = false;
+		} else if(first && fourth && roundsExisted > 120) {
+			totalTrees = 2;
+			addedNum = 0;
+			movement = false;
+		} else if(second && fifth && roundsExisted > 120) {
+			totalTrees = 2;
+			addedNum = 1;
+			movement = false;
+		}
+		else {
 			try {		
 				Direction dir;
 				dir = new Direction(gardDirection);
-				MapLocation m = rc.getLocation();
 				if(rc.canMove(dir)) {
 					rc.move(dir);
-					rc.broadcast(9, (int) m.x);
-					rc.broadcast(10, (int) m.y);
-					
+
+
 				} else {
 					gardDirection = (float) (gardDirection + Math.PI/((Math.random()* 2 + 4)));
 				}
@@ -105,14 +116,14 @@ public class Gardener extends BaseRobot {
 		if(trees.length == 0)
 			return;
 		Arrays.sort(trees, new Comparator<TreeInfo>() {
-			   public int compare(TreeInfo b1, TreeInfo b2) {
-				   if(b1.health > b2.health)
-					   return 1;
-				   if(b1.health < b2.health)
-					   return -1;
-				  return 0;
-			   }
-			});
+			public int compare(TreeInfo b1, TreeInfo b2) {
+				if(b1.health > b2.health)
+					return 1;
+				if(b1.health < b2.health)
+					return -1;
+				return 0;
+			}
+		});
 		for(TreeInfo t : trees) {
 			if(rc.canWater(t.ID)) {
 				try {
@@ -149,7 +160,7 @@ public class Gardener extends BaseRobot {
 		}
 		if(amts[0] < 1 && rc.canBuildRobot(RobotType.SCOUT, dirList[spawnPos])) {
 			try {
-				
+
 				rc.buildRobot(RobotType.SCOUT, dirList[spawnPos]);
 				if(rc.readBroadcast(15) == 0){
 					rc.broadcast(15, 1);
@@ -179,17 +190,17 @@ public class Gardener extends BaseRobot {
 	void spawnTrees(TreeInfo[] trees) {
 		int treeLoc = 0;
 		switch(totalTrees) {
-			case 6:
-				treeLoc = trees.length;
-				break;
-			case 3:
-				treeLoc = trees.length * 2 + addedNum;
-				break;
-			case 2: 
-				treeLoc = trees.length * 2 + addedNum;
-				break;
-			default:
-				System.out.println("this should never happen");
+		case 6:
+			treeLoc = trees.length;
+			break;
+		case 3:
+			treeLoc = trees.length * 2 + addedNum;
+			break;
+		case 2: 
+			treeLoc = trees.length * 2 + addedNum;
+			break;
+		default:
+			System.out.println("this should never happen");
 		}
 		if(!scoutBuilt && rc.canBuildRobot(RobotType.SCOUT, dirList[treeLoc])) {
 			try {
