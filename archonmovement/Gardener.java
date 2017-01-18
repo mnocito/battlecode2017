@@ -7,6 +7,7 @@ import battlecode.common.*;
 public class Gardener extends BaseRobot {
 	int[] amts = new int[4];
 	// 0: scouts, 1: lumberjacks, 2: soldiers, 3: tanks
+	static int channel = -1;
 	int roundsExisted = 0;
 	boolean scoutBuilt = false;
 	int addedNum = 0;
@@ -91,15 +92,28 @@ public class Gardener extends BaseRobot {
 	}
 	void spawnStuff() throws GameActionException {
 		MapLocation m = rc.getLocation();
-
-		for (int channel = 100; channel < GameConstants.BROADCAST_MAX_CHANNELS; channel += 4) {
-			if (rc.readBroadcast(channel) == 0 || rc.readBroadcast(channel+3) == rc.getID()) {
-				rc.broadcast(channel, (int) m.x);
-				rc.broadcast(channel+1, (int) m.y);
-				rc.broadcast(channel+2, -1);
-				rc.broadcast(channel+3, rc.getID());
-				break;
+		if(channel == -1){
+			for (int channel1 = 100; channel1 < GameConstants.BROADCAST_MAX_CHANNELS; channel1 += 4) {
+				if (rc.readBroadcast(channel1) == 0 || rc.readBroadcast(channel1+3) == rc.getID()) {
+					rc.broadcast(channel1, (int) m.x);
+					rc.broadcast(channel1+1, (int) m.y);
+					rc.broadcast(channel1+2, -1);
+					rc.broadcast(channel1+3, rc.getID());
+					channel = channel1;
+					break;
+				}
 			}
+		} else{
+			
+				
+				if(rc.readBroadcast(channel+1) < 0){
+					rc.broadcast(channel+1, (int) m.y);
+					rc.broadcast(channel, (int) m.x);
+					rc.broadcast(channel+3, rc.getID());
+				}
+				
+			
+			
 		}
 		TreeInfo[] trees = rc.senseNearbyTrees((float)1.5, rc.getTeam());
 		tendTrees(trees);

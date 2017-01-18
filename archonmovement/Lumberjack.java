@@ -5,6 +5,8 @@ import battlecode.common.*;
 public class Lumberjack extends BaseRobot {
 	static int channel = -1;
 	static MapLocation target;
+	static boolean claimed = false;
+	
 	public Lumberjack(RobotController rc) {
 		super(rc);
 		// TODO Auto-generated constructor stub
@@ -46,14 +48,21 @@ public class Lumberjack extends BaseRobot {
 				}
 				strikeBot(robots[0]);
 			}
-			if (channel == -1) {
+			
+			if (channel != -1) {
+				rc.broadcast(channel+2, rc.getID());
+				
+		
+			}else{
 				for (int i = 100; i < GameConstants.BROADCAST_MAX_CHANNELS; i+=4) {
 					if (rc.readBroadcast(i+2) < 0) { // if this is not a "claimed" gardener, then claim it.
 						rc.broadcast(i+2, rc.getID());
 						target = new MapLocation(rc.readBroadcast(i), rc.readBroadcast(i+1));
+						channel = i;
+						System.out.println(channel);
+						break;
 					}
 				}
-		
 			}
 		}
 		Clock.yield();
