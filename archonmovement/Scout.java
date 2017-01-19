@@ -14,9 +14,14 @@ public class Scout extends BaseRobot {
 			scoutDir = 0;
 		}
 	}
-	public void run() {
+	
+	public void run() throws GameActionException {
+		MapLocation archonLoc = new MapLocation(Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS-5)),Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS-6)));	
 		Direction dir = new Direction((float)Math.PI);
 		TreeInfo target = null;
+		int ARCHON = 1;
+		int SOLDIER = 2;
+		
 		try {
 			MapLocation myLocation = rc.getLocation();
 			// See if there are any nearby enemy robots
@@ -24,6 +29,23 @@ public class Scout extends BaseRobot {
 			RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 			// If there are some...
 			if (robots.length > 0) {
+				for(int i = 0 ; i < robots.length; i ++){
+					
+						if(rc.readBroadcast(11) == 0 ){
+							rc.broadcast(9, (int)robots[i].getLocation().x);
+							rc.broadcast(10, (int)robots[i].getLocation().y);
+							rc.broadcast(11, (int)robots[i].getID());//target ID
+							rc.broadcast(12, i-5); // 
+						}else if (robots[i].location.distanceTo(archonLoc) < new MapLocation(rc.readBroadcast(9),rc.readBroadcast(10)).distanceTo(archonLoc)){
+							System.out.println("distance: " +robots[i].location.distanceTo(archonLoc));
+							System.out.println("distance 2: "+new MapLocation(rc.readBroadcast(9),rc.readBroadcast(10)).distanceTo(archonLoc));
+							rc.broadcast(9, (int)robots[i].getLocation().x);
+							rc.broadcast(10, (int)robots[i].getLocation().y);
+							rc.broadcast(11, (int)robots[i].getID());//target ID
+							rc.broadcast(12, i-5); // 
+						}
+					
+				}
 				if(rc.readBroadcast(11)!= robots[0].getID() ){
 					rc.broadcast(9, (int)robots[0].getLocation().x);
 					rc.broadcast(10, (int)robots[0].getLocation().y);

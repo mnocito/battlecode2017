@@ -54,6 +54,10 @@ public class Soldier extends BaseRobot {
 					targetRobotID = rc.readBroadcast(11);
 					targetRobotLocation = new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10));
 				}
+				if(rc.getLocation().distanceTo(targetRobotLocation) < 1){
+					rc.broadcast(9, rc.readBroadcast(9) + 1);
+					rc.broadcast(10, rc.readBroadcast(10) + 1);
+				}
 			}else{
 				RobotInfo target = closestRobot(robots);
 				if(rc.canMove(target.getLocation())){
@@ -86,7 +90,7 @@ public class Soldier extends BaseRobot {
 			System.out.println(archonNeedsHelp);
 			TreeInfo[] nearbyTrees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
 			if(archonNeedsHelp != -1 && hasmoved == false){
-				//moveTowards(new MapLocation(rc.readBroadcast(77), rc.readBroadcast(78)));
+				//     moveTowards(new MapLocation(rc.readBroadcast(77), rc.readBroadcast(78)));
 				//rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.readBroadcast(77), rc.readBroadcast(78)), 0, 1000, 0);
 			}/*else if(nearbyTrees.length > 0){
 				for(TreeInfo t: nearbyTrees){
