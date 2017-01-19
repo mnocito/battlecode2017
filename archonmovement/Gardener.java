@@ -29,24 +29,19 @@ public class Gardener extends BaseRobot {
 		roundsExisted++;
 		RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 		if(!scoutBuilt) {
-			int spawnPos = 0;
-			switch(totalTrees) {
-			case 6:
-				spawnPos = totalTrees - 1;
-				break;
-			case 3:
-				spawnPos = (totalTrees - 1) * 2 + addedNum;
-				break;
-			case 2: 
-				spawnPos = (totalTrees - 1) * 2  + addedNum;
-				break;
-			default:
-				System.out.println("this should never happen");
-			}
-			if(rc.canBuildRobot(RobotType.SCOUT, dirList[spawnPos])) {
-				rc.buildRobot(RobotType.SCOUT, dirList[spawnPos]);
-				scoutBuilt = true;
-			}
+			if(rc.canBuildRobot(RobotType.SCOUT, dirList[0])) {
+				
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[1])) {
+				
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[2])) {
+				
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[3])) {
+				
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[4])) {
+				
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[5])) {
+				
+			} 
 		}
 		if(enemies.length > 0){
 			//for(RobotInfo r :enemies){
