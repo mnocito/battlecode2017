@@ -30,7 +30,27 @@ public class Gardener extends BaseRobot {
 		if(enemies.length > 0){
 			rc.broadcast(50, (int)enemies[0].getLocation().x);
 		}
-		if(amts[2] == 0) {
+		if(amts[0] < 1) {
+			if(rc.canBuildRobot(RobotType.SCOUT, dirList[0])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[0]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[1])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[1]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[2])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[2]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[3])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[3]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[4])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[4]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[5])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[5]);
+				amts[0]++;
+			} 
+		} else if(amts[2] < 1) {
 			if(rc.canBuildRobot(RobotType.SOLDIER, dirList[0])) {
 				rc.buildRobot(RobotType.SOLDIER, dirList[0]);
 				amts[2]++;

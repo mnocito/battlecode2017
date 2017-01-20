@@ -29,32 +29,19 @@ public class Archon extends BaseRobot {
 			Team enemy = rc.getTeam().opponent();
 			RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 			// If there are some...
+			float enemX = rc.readBroadcast(9);
+			float enemY = rc.readBroadcast(10);
+			if(enemX != 0 && rc.senseNearbyRobots(new MapLocation(enemX, enemY), -1, enemy) == null) {
+				rc.broadcast(9, (int) (enemX + Math.random()));
+				rc.broadcast(10, (int) (enemY + Math.random()));
+			}
 			if (robots.length > 0) {
-				for(int i = 0 ; i < robots.length; i ++){
-					
-						if(rc.readBroadcast(11) == 0 ){
-							rc.broadcast(9, (int)robots[i].getLocation().x);
-							rc.broadcast(10, (int)robots[i].getLocation().y);
-							rc.broadcast(11, (int)robots[i].getID());//target ID
-							rc.broadcast(12, i-5); // 
-						}else if (robots[i].location.distanceTo(myLocation) < new MapLocation(rc.readBroadcast(9),rc.readBroadcast(10)).distanceTo(myLocation)){
-							System.out.println("distance: " +robots[i].location.distanceTo(myLocation));
-							System.out.println("distance 2: "+new MapLocation(rc.readBroadcast(9),rc.readBroadcast(10)).distanceTo(myLocation));
-							rc.broadcast(9, (int)robots[i].getLocation().x);
-							rc.broadcast(10, (int)robots[i].getLocation().y);
-							rc.broadcast(11, (int)robots[i].getID());//target ID
-							rc.broadcast(12, i-5); // 
-						}
-					
-				}
-				if(rc.readBroadcast(11)!= robots[0].getID() ){
-					rc.broadcast(9, (int)robots[0].getLocation().x);
-					rc.broadcast(10, (int)robots[0].getLocation().y);
-					rc.broadcast(11, (int)robots[0].getID());//target ID
-					rc.broadcast(12, (int)robots[0].health);
-				}
-				
-			} 
+				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7, Float.floatToIntBits(robots[0].location.x));
+				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 8, Float.floatToIntBits(robots[0].location.y));
+			} else {
+				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7, 0);
+				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 8, 0);
+			}
 			float hp = rc.getHealth();
 			if(lastHealth < hp) {
 				rc.broadcast(76, 1);
@@ -153,8 +140,7 @@ public class Archon extends BaseRobot {
 			for(int i = 100; i < 100+20*4; i+=4){
 				if(rc.readBroadcast(i) !=0) {
 					avg_x += rc.readBroadcast(i);
-					avg_y += rc.readBroadcast(i+1);
-					
+					avg_y += rc.readBroadcast(i+1);			
 					num_gardeners++;
 				}
 			}
@@ -167,14 +153,13 @@ public class Archon extends BaseRobot {
 				MapLocation gardener_target = new MapLocation(avg_x, avg_y);
 				rc.setIndicatorDot(gardener_target, 0 , 0, 1000);
 				System.out.println(gardener_target);
-
+				
 					try {
 						moveTowards(gardener_target);
 						rc.setIndicatorDot(gardener_target, 1000, 0, 1000);
 					} catch(GameActionException e) {
 						e.printStackTrace();
 					}
-					moveTowards(gardener_target);
 					System.out.println("move towards");
 				
 			}

@@ -46,7 +46,9 @@ public class Soldier extends BaseRobot {
 			RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 			RobotInfo[] friendlies = rc.senseNearbyRobots(-1, rc.getTeam()); 
 			if (robots.length == 0 ) {
-				if(hasmoved == false){
+				if(!hasmoved && rc.readBroadcast(9) == 0) {
+					randMove();
+				} else if(!hasmoved && rc.readBroadcast(9) != 0){
 					moveTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
 				}
 				rc.setIndicatorLine(rc.getLocation(), new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), 50, 50, 100);
@@ -86,10 +88,9 @@ public class Soldier extends BaseRobot {
 				targetRobotID = target.ID;
 				targetRobotLocation = target.location;	
 			}
-			int archonNeedsHelp = rc.readBroadcast(76);
-			System.out.println(archonNeedsHelp);
+			int archonNeedsHelp = rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7);
 			TreeInfo[] nearbyTrees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
-			if(archonNeedsHelp != -1 && hasmoved == false){
+			if(archonNeedsHelp != 0 && hasmoved == false){
 				//     moveTowards(new MapLocation(rc.readBroadcast(77), rc.readBroadcast(78)));
 				//rc.setIndicatorLine(rc.getLocation(), new MapLocation(rc.readBroadcast(77), rc.readBroadcast(78)), 0, 1000, 0);
 			}/*else if(nearbyTrees.length > 0){
