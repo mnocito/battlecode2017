@@ -9,7 +9,6 @@ public class Gardener extends BaseRobot {
 	// 0: scouts, 1: lumberjacks, 2: soldiers, 3: tanks
 	static int channel = -1;
 	int roundsExisted = 0;
-	boolean scoutBuilt = false;
 	int addedNum = 0;
 	boolean movement = true;
 	int totalTrees = 0;
@@ -28,26 +27,49 @@ public class Gardener extends BaseRobot {
 	void run() throws GameActionException {
 		roundsExisted++;
 		RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
-		if(!scoutBuilt) {
-			if(rc.canBuildRobot(RobotType.SCOUT, dirList[0])) {
-				
-			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[1])) {
-				
-			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[2])) {
-				
-			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[3])) {
-				
-			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[4])) {
-				
-			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[5])) {
-				
-			} 
-		}
 		if(enemies.length > 0){
-			//for(RobotInfo r :enemies){
-			//if(r.isRobot())
-			///}
 			rc.broadcast(50, (int)enemies[0].getLocation().x);
+		}
+		if(amts[2] == 0) {
+			if(rc.canBuildRobot(RobotType.SOLDIER, dirList[0])) {
+				rc.buildRobot(RobotType.SOLDIER, dirList[0]);
+				amts[2]++;
+			} else if(rc.canBuildRobot(RobotType.SOLDIER, dirList[1])) {
+				rc.buildRobot(RobotType.SOLDIER, dirList[1]);
+				amts[2]++;
+			} else if(rc.canBuildRobot(RobotType.SOLDIER, dirList[2])) {
+				rc.buildRobot(RobotType.SOLDIER, dirList[2]);
+				amts[2]++;
+			} else if(rc.canBuildRobot(RobotType.SOLDIER, dirList[3])) {
+				rc.buildRobot(RobotType.SOLDIER, dirList[3]);
+				amts[2]++;
+			} else if(rc.canBuildRobot(RobotType.SOLDIER, dirList[4])) {
+				rc.buildRobot(RobotType.SOLDIER, dirList[4]);
+				amts[2]++;
+			} else if(rc.canBuildRobot(RobotType.SOLDIER, dirList[5])) {
+				rc.buildRobot(RobotType.SOLDIER, dirList[5]);
+				amts[2]++;
+			} 
+		} else if(amts[0] < 2) {
+			if(rc.canBuildRobot(RobotType.SCOUT, dirList[0])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[0]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[1])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[1]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[2])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[2]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[3])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[3]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[4])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[4]);
+				amts[0]++;
+			} else if(rc.canBuildRobot(RobotType.SCOUT, dirList[5])) {
+				rc.buildRobot(RobotType.SCOUT, dirList[5]);
+				amts[0]++;
+			} 
 		}
 		if (movement) {
 			gardenerMove();
@@ -57,8 +79,6 @@ public class Gardener extends BaseRobot {
 		Clock.yield();
 	}
 	void gardenerMove() throws GameActionException{
-		
-
 
 		boolean first, second, third, fourth, fifth, sixth;
 		first = rc.canPlantTree(dirList[0]);
@@ -95,8 +115,6 @@ public class Gardener extends BaseRobot {
 				dir = new Direction(gardDirection);
 				if(rc.canMove(dir)) {
 					rc.move(dir);
-
-
 				} else {
 					gardDirection = (float) (gardDirection + Math.PI/((Math.random()* 2 + 4)));
 				}
@@ -118,17 +136,15 @@ public class Gardener extends BaseRobot {
 					break;
 				}
 			}
-		} else{
-			
-				
-				if(rc.readBroadcast(channel+1) < 0){
-					rc.broadcast(channel+1, (int) m.y);
-					rc.broadcast(channel, (int) m.x);
-					rc.broadcast(channel+3, rc.getID());
-				}
-				
-			
-			
+		} else{			
+			if(rc.readBroadcast(channel+1) < 0){
+				rc.broadcast(channel+1, (int) m.y);
+				rc.broadcast(channel, (int) m.x);
+				rc.broadcast(channel+3, rc.getID());
+			}
+
+
+
 		}
 		TreeInfo[] trees = rc.senseNearbyTrees((float)1.5, rc.getTeam());
 		tendTrees(trees);
@@ -189,7 +205,7 @@ public class Gardener extends BaseRobot {
 		default:
 			System.out.println("this should never happen");
 		}
-		if(amts[0] < 1 && rc.canBuildRobot(RobotType.SCOUT, dirList[spawnPos])) {
+		if(amts[0] < 2 && rc.canBuildRobot(RobotType.SCOUT, dirList[spawnPos])) {
 			try {
 
 				rc.buildRobot(RobotType.SCOUT, dirList[spawnPos]);
@@ -200,7 +216,7 @@ public class Gardener extends BaseRobot {
 			} catch (GameActionException e) {
 				System.out.println(e);
 			}
-		} else if(amts[1] < 2 &&  rc.canBuildRobot(RobotType.LUMBERJACK, dirList[spawnPos])) {
+		} else if(amts[1] < 3 &&  rc.canBuildRobot(RobotType.LUMBERJACK, dirList[spawnPos])) {
 			try {
 				rc.buildRobot(RobotType.LUMBERJACK, dirList[spawnPos]);
 				amts[1]++;
@@ -232,15 +248,6 @@ public class Gardener extends BaseRobot {
 			break;
 		default:
 			System.out.println("this should never happen");
-		}
-		if(!scoutBuilt && rc.canBuildRobot(RobotType.SCOUT, dirList[treeLoc])) {
-			try {
-				rc.buildRobot(RobotType.SCOUT, dirList[treeLoc]);
-				scoutBuilt = true;
-			} catch (GameActionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		if(rc.canPlantTree(dirList[treeLoc])) {
 			try {
