@@ -5,6 +5,8 @@ import battlecode.common.*;
 public class Soldier extends BaseRobot {
 	float solDir = 0;
 	MapLocation targetRobotLocation = null;
+	public Direction currentDirection = new Direction(0);
+	public Direction initialDirection = new Direction(0);
 	public boolean hasmoved = false;
 	int targetRobotID = 666;
 	public Soldier(RobotController rc) {
@@ -19,8 +21,9 @@ public class Soldier extends BaseRobot {
 			solDir = 0;
 		}
 	}
-	public void run() {
+	public void run() throws GameActionException {
 		Team enemy = rc.getTeam().opponent();
+		bugPathTowards(rc.getLocation());
 		// Try/catch blocks stop unhandled exceptions, which cause your robot to explode
 		try {
 			hasmoved = false;
@@ -144,6 +147,20 @@ public class Soldier extends BaseRobot {
 				System.out.println(hasmoved);
 			}else{
 				targetDir = targetDir.rotateLeftDegrees(r_l);
+			}
+		}
+	}
+	public void bugPathTowards(MapLocation Loc1) throws GameActionException{
+		MapLocation[] nodes = new MapLocation[10];
+		for(int i = 0; i < 10; i++){
+			Direction dir = new Direction((float) (i* (Math.PI/5)));
+			nodes[i] = new MapLocation(rc.getLocation().x + dir.getDeltaX(GameConstants.MAX_ROBOT_RADIUS), rc.getLocation().y + dir.getDeltaY(GameConstants.MAX_ROBOT_RADIUS));;
+		}
+		for(int i = 0; i <10; i ++){
+			if(rc.senseRobotAtLocation(nodes[i]) != null){
+				rc.setIndicatorDot(nodes[i], 1000, 100, 0);
+			}else{
+			rc.setIndicatorDot(nodes[i], 100, 1000, 0);
 			}
 		}
 	}
