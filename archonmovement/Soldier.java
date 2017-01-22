@@ -79,13 +79,18 @@ public class Soldier extends BaseRobot {
 						rc.setIndicatorDot(r.location, 0, 1000, 0);
 					}		
 				}
-
-				if(rc.canFirePentadShot()&& !willHitFriend){
-					rc.firePentadShot(rc.getLocation().directionTo(target.getLocation()));
-				}else if(rc.canFireTriadShot()&& !willHitFriend){
-					rc.fireTriadShot(rc.getLocation().directionTo(target.getLocation()));
-				}else if(rc.canFireSingleShot()&& !willHitFriend){
-					rc.fireSingleShot((rc.getLocation().directionTo(target.getLocation())));
+				if(rc.getLocation().distanceTo(target.location)<5){
+					if(rc.canFirePentadShot()&& !willHitFriend){
+						rc.firePentadShot(rc.getLocation().directionTo(target.getLocation()));
+					}else if(rc.canFireTriadShot()&& !willHitFriend){
+						rc.fireTriadShot(rc.getLocation().directionTo(target.getLocation()));
+					}else if(rc.canFireSingleShot()&& !willHitFriend){
+						rc.fireSingleShot((rc.getLocation().directionTo(target.getLocation())));
+					}
+				} else {
+					if(rc.canFireSingleShot()&& !willHitFriend){
+						rc.fireSingleShot((rc.getLocation().directionTo(target.getLocation())));
+					}
 				}
 
 				targetRobotID = target.ID;
@@ -133,20 +138,20 @@ public class Soldier extends BaseRobot {
 	}
 	public void moveTowards(MapLocation loc1) throws GameActionException{
 		int r_l = 15;
-		if(Math.random() > .5){
-			r_l = 15;
-		} else{
-			r_l = -15;
-		}
 		Direction targetDir = rc.getLocation().directionTo(loc1);
+		if(targetDir == null)
+			return;
 		for(int i = 0; i < 8; i++){
-			if(hasmoved == false && rc.canMove(targetDir)){
-				rc.move(targetDir);
-				hasmoved = true;
-				rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
-				System.out.println(hasmoved);
-			}else{
-				targetDir = targetDir.rotateLeftDegrees(r_l);
+			if(!rc.hasMoved()) {
+				if (rc.canMove(targetDir)){
+					rc.move(targetDir);
+					rc.setIndicatorLine(rc.getLocation(), loc1, 0, 0, 1000);
+					System.out.println(rc.hasMoved());
+				} else {
+					targetDir = targetDir.rotateLeftDegrees(r_l);
+				}
+			} else {
+				break;
 			}
 		}
 	}
@@ -155,9 +160,10 @@ public class Soldier extends BaseRobot {
 		for(int i = 0; i < 10; i++){
 			Direction dir = new Direction((float) (i* (Math.PI/5)));
 			nodes[i] = new MapLocation(rc.getLocation().x + dir.getDeltaX(GameConstants.MAX_ROBOT_RADIUS), rc.getLocation().y + dir.getDeltaY(GameConstants.MAX_ROBOT_RADIUS));;
+			
 		}
 		for(int i = 0; i <10; i ++){
-			if(rc.senseRobotAtLocation(nodes[i]) != null){
+			if(rc.senseRobotAtLocation(nodes[i]) != null || rc.senseTreeAtLocation(nodes[i]) != null ){
 				rc.setIndicatorDot(nodes[i], 1000, 100, 0);
 			}else{
 			rc.setIndicatorDot(nodes[i], 100, 1000, 0);
