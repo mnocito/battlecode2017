@@ -2,14 +2,14 @@ package botone;
 
 import battlecode.common.*;
 
-
-
 public class Soldier extends BaseRobot {
 	float solDir = 0;
 	MapLocation targetRobotLocation = null;
 	public Direction currentDirection = new Direction(0);
 	public Direction initialDirection = new Direction(0);
 	public boolean hasmoved = false;
+	Team myTeam = rc.getTeam();
+	MapLocation initialEnemyArchon = rc.getInitialArchonLocations(myTeam.opponent())[0];
 	public boolean haveMoveRadius = false;
 	public boolean DirectionBool = false; //false = left ||| true = right
 	public MapLocation[] lastTurns = new MapLocation[3];
@@ -19,7 +19,6 @@ public class Soldier extends BaseRobot {
 		super(rc);
 		// TODO Auto-generated constructor stub
 	}
-	Team myTeam = rc.getTeam();
 	public void init() {
 		if(myTeam == Team.A) {
 			solDir = (float) Math.PI;
@@ -34,8 +33,12 @@ public class Soldier extends BaseRobot {
 		MapLocation lastSpottedEnemy = null;
 		if (robots.length > 0) {
 			robot = robots[0];
+			float archonX = intToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7));
+			float archonY = intToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 8));
+			
+			MapLocation archonLoc = new MapLocation(archonX, archonY);
 			lastSpottedEnemy = new MapLocation(robots[0].getLocation().x, robots[0].getLocation().y);
-			if(rc.readBroadcast(11)!= robots[0].getID() ){
+			if(archonLoc.distanceTo(lastSpottedEnemy) > archonLoc.distanceTo(new MapLocation(rc.readBroadcast(9), rc.readBroadcast(10)))){
 				rc.broadcast(9, (int)robots[0].getLocation().x);
 				rc.broadcast(10, (int)robots[0].getLocation().y);
 				rc.broadcast(11, (int)robots[0].getID());//target ID
@@ -72,7 +75,7 @@ public class Soldier extends BaseRobot {
 			RobotInfo[] friendlies = rc.senseNearbyRobots(-1, rc.getTeam()); 
 			if (robots.length == 0 ) {
 				if(!hasmoved && rc.readBroadcast(9) == 0) {
-					randMove();
+					moveTowards(initialEnemyArchon);
 				} else if(!hasmoved && rc.readBroadcast(9) != 0){
 					bugPathTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))));
 					//moveTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
@@ -82,7 +85,7 @@ public class Soldier extends BaseRobot {
 					targetRobotID = rc.readBroadcast(11);
 					targetRobotLocation = new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10));
 				}
-				if(rc.getLocation().distanceTo(targetRobotLocation) < 1){
+				if(rc.getLocation().distanceTo(targetRobotLocation) < 2){
 					rc.broadcast(9, rc.readBroadcast(9) + 1);
 					rc.broadcast(10, rc.readBroadcast(10) + 1);
 				}
@@ -93,8 +96,8 @@ public class Soldier extends BaseRobot {
 				}else if(rc.canMove(rc.getLocation().directionTo(target.location), 1)){
 					rc.move(rc.getLocation().directionTo(target.location), 1);
 				}else{
-					bugPathTowards(target.getLocation(), rc.getLocation().directionTo(target.getLocation()));
-					//moveTowards(target.getLocation());
+					//bugPathTowards(target.getLocation(), rc.getLocation().directionTo(target.getLocation()));
+					moveTowards(target.getLocation());
 				}
 				boolean willHitFriend = false;
 				for(RobotInfo r: friendlies){
@@ -132,6 +135,7 @@ public class Soldier extends BaseRobot {
 					}
 				}
 			}
+
 			TreeInfo[] enemyTrees = rc.senseNearbyTrees(-1, rc.getTeam().opponent());
 			if(enemyTrees.length > 0){
 				for(TreeInfo t: enemyTrees){
@@ -200,7 +204,7 @@ public class Soldier extends BaseRobot {
 		if(dir1 == null){
 			dir1 = rc.getLocation().directionTo(Loc1);
 		}
-		if(rc.getLocation().distanceTo(Loc1) > rc.getType().strideRadius*3){
+		if(rc.getLocation().distanceTo(Loc1) > rc.getType().strideRadius*4){
 			double targetX = rc.getLocation().x + rc.getType().strideRadius * Math.cos(dir1.getAngleDegrees());
 			double targetY = rc.getLocation().y + rc.getType().strideRadius * Math.sin(dir1.getAngleDegrees());
 			MapLocation targetLocation = new MapLocation((float)targetX, (float)targetY);

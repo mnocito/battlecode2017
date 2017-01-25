@@ -27,9 +27,30 @@ public class Gardener extends BaseRobot {
 		amts[3] = 0;
 	}
 	void run() throws GameActionException {
+		
+		RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+		RobotInfo robot = null;
+		MapLocation lastSpottedEnemy = null;
+		if (robots.length > 0) {
+			robot = robots[0];
+			float archonX = intToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7));
+			float archonY = intToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 8));
+			
+			MapLocation archonLoc = new MapLocation(archonX, archonY);
+			lastSpottedEnemy = new MapLocation(robots[0].getLocation().x, robots[0].getLocation().y);
+			if(archonLoc.distanceTo(lastSpottedEnemy) > archonLoc.distanceTo(new MapLocation(rc.readBroadcast(9), rc.readBroadcast(10)))){
+				rc.broadcast(9, (int)robots[0].getLocation().x);
+				rc.broadcast(10, (int)robots[0].getLocation().y);
+				rc.broadcast(11, (int)robots[0].getID());//target ID
+				rc.broadcast(12, (int)robots[0].health);
+			}
+		} else if(rc.readBroadcast(9) != 0) {
+			lastSpottedEnemy = new MapLocation(rc.readBroadcast(9), rc.readBroadcast(10));
+		}
+		
 		float teamBullets = rc.getTeamBullets();
 		roundsExisted++;
-		RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+		
 		if(robots.length > 0){
 			rc.broadcast(50, (int)robots[0].getLocation().x);
 			if (rc.readBroadcast(11) != robots[0].getID()) {
@@ -201,15 +222,12 @@ public class Gardener extends BaseRobot {
 		}
 	}
 	void spawnRobots() {
-		if(rc.senseNearbyTrees(-1, Team.NEUTRAL).length > 5) {
-			if(amts[1] < 1) {
-				spawnRobot(RobotType.LUMBERJACK, 1);
-			}
-		}
-		if(amts[2] < 1) {
+		if(amts[2] < 2) {
 			spawnRobot(RobotType.SOLDIER, 2);
-		} else if(amts[1] < 2) {
+		} else if(amts[1] < 1) {
 			spawnRobot(RobotType.LUMBERJACK, 1);
+		} else if(amts[0] < 1) {
+			spawnRobot(RobotType.SCOUT, 0);
 		} else if(amts[2] < 10) {
 			spawnRobot(RobotType.SOLDIER, 2);
 		} 

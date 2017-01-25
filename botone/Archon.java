@@ -9,6 +9,7 @@ public class Archon extends BaseRobot {
 	static float arcDirection = 4.0f;
 	Direction teamDir;
 	int dirListIndex = -1;
+	int numGardeners = 0;
 	float lastHealth = 40000;
 	MapLocation[] nodes = new MapLocation[6];
 	MapLocation[][] treenodes = new MapLocation[6][6];
@@ -28,22 +29,31 @@ public class Archon extends BaseRobot {
 	void run() throws GameActionException {
 		rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS-5, Float.floatToIntBits(rc.getLocation().x));
 		rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS-6, Float.floatToIntBits(rc.getLocation().y));		
-		int numGardeners = 0;
 		MapLocation myLocation = rc.getLocation();
 		for(int i = 100; i < 100+20*4; i+=4){
 			numGardeners++;
 		}
 		try {
+			
+			RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+			RobotInfo robot = null;
+			MapLocation lastSpottedEnemy = null;
+			if (robots.length > 0) {
+				robot = robots[0];
+				lastSpottedEnemy = new MapLocation(robots[0].getLocation().x, robots[0].getLocation().y);
+				if(rc.getLocation().distanceTo(lastSpottedEnemy) > rc.getLocation().distanceTo(new MapLocation(rc.readBroadcast(9), rc.readBroadcast(10)))){
+					rc.broadcast(9, (int)robots[0].getLocation().x);
+					rc.broadcast(10, (int)robots[0].getLocation().y);
+					rc.broadcast(11, (int)robots[0].getID());//target ID
+					rc.broadcast(12, (int)robots[0].health);
+				}
+			} else if(rc.readBroadcast(9) != 0) {
+				lastSpottedEnemy = new MapLocation(rc.readBroadcast(9), rc.readBroadcast(10));
+			}
 			// See if there are any nearby enemy robots
 			Team enemy = rc.getTeam().opponent();
-			RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 			// If there are some...
-			float enemX = rc.readBroadcast(9);
-			float enemY = rc.readBroadcast(10);
-			if(enemX != 0 && rc.senseNearbyRobots(new MapLocation(enemX, enemY), -1, enemy) == null) {
-				rc.broadcast(9, (int) (enemX + Math.random()));
-				rc.broadcast(10, (int) (enemY + Math.random()));
-			}
+			
 			if (robots.length > 0) {
 				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7, Float.floatToIntBits(robots[0].location.x));
 				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 8, Float.floatToIntBits(robots[0].location.y));
@@ -72,6 +82,7 @@ public class Archon extends BaseRobot {
 				moveTowards(dirList[dirListIndex]);
 			}
 		}
+		numGardeners = 0;
 		Clock.yield();
 	}
 	public void moveTowards(Direction dir) throws GameActionException{
@@ -126,7 +137,7 @@ public class Archon extends BaseRobot {
 	void tryGardener() {
 		try {
 			int curRound = rc.getRoundNum();
-			if(curRound % 30 == 0 || curRound < 10) {
+			if(curRound % 30 == 0 || curRound < 10 || (numGardeners < 3)) {
 				System.out.println("current round: " + curRound);
 				int gardenerDirection = (int)(Math.random() * ((5) + 1));
 					while(!rc.canHireGardener(dirList[gardenerDirection])) {
