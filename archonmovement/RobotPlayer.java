@@ -56,9 +56,9 @@ public strictfp class RobotPlayer {
             		scout.run();
             	}
             case TANK: 
-            	tank.init();
+            	soldier.init();
             	while(true) {
-            		tank.run();
+            		soldier.run();
             	}
         }
 	}

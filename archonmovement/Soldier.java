@@ -8,6 +8,10 @@ public class Soldier extends BaseRobot {
 	public Direction currentDirection = new Direction(0);
 	public Direction initialDirection = new Direction(0);
 	public boolean hasmoved = false;
+	public boolean haveMoveRadius = false;
+	public boolean DirectionBool = false; //false = left ||| true = right
+	public MapLocation[] lastTurns = new MapLocation[3];
+	float moveRadius = 0;
 	int targetRobotID = 666;
 	public Soldier(RobotController rc) {
 		super(rc);
@@ -22,8 +26,25 @@ public class Soldier extends BaseRobot {
 		}
 	}
 	public void run() throws GameActionException {
+		
+		RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+		RobotInfo robot = null;
+		MapLocation lastSpottedEnemy = null;
+		if (robots.length > 0) {
+			robot = robots[0];
+			lastSpottedEnemy = new MapLocation(robots[0].getLocation().x, robots[0].getLocation().y);
+			if(rc.readBroadcast(11)!= robots[0].getID() ){
+				rc.broadcast(9, (int)robots[0].getLocation().x);
+				rc.broadcast(10, (int)robots[0].getLocation().y);
+				rc.broadcast(11, (int)robots[0].getID());//target ID
+				rc.broadcast(12, (int)robots[0].health);
+			}
+		} else if(rc.readBroadcast(9) != 0) {
+			lastSpottedEnemy = new MapLocation(rc.readBroadcast(9), rc.readBroadcast(10));
+		}
+		
 		Team enemy = rc.getTeam().opponent();
-		bugPathTowards(rc.getLocation());
+		
 		// Try/catch blocks stop unhandled exceptions, which cause your robot to explode
 		try {
 			hasmoved = false;
@@ -38,7 +59,7 @@ public class Soldier extends BaseRobot {
 					MapLocation bulletTarget = new MapLocation(x,y);
 					if(myLocation.distanceTo(bulletTarget) < GameConstants.MAX_ROBOT_RADIUS){
 						if(hasmoved == false && rc.canMove(rc.getLocation().directionTo(bulletTarget).rotateLeftDegrees(90))){
-							rc.move(rc.getLocation().directionTo(bulletTarget).rotateLeftDegrees(90));
+							rc.move(rc.getLocation().directionTo(bulletTarget).rotateLeftDegrees(160));
 							hasmoved = true;
 							rc.setIndicatorDot(bulletTarget, 100, 0, 0);
 						}
@@ -46,13 +67,13 @@ public class Soldier extends BaseRobot {
 				}
 			}
 			// See if there are any nearby enemy robots
-			RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 			RobotInfo[] friendlies = rc.senseNearbyRobots(-1, rc.getTeam()); 
 			if (robots.length == 0 ) {
 				if(!hasmoved && rc.readBroadcast(9) == 0) {
 					randMove();
 				} else if(!hasmoved && rc.readBroadcast(9) != 0){
-					moveTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
+					bugPathTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))));
+					//moveTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
 				}
 				rc.setIndicatorLine(rc.getLocation(), new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), 50, 50, 100);
 				if(targetRobotID != rc.readBroadcast(11)){
@@ -70,7 +91,8 @@ public class Soldier extends BaseRobot {
 				}else if(rc.canMove(rc.getLocation().directionTo(target.location), 1)){
 					rc.move(rc.getLocation().directionTo(target.location), 1);
 				}else{
-					moveTowards(target.getLocation());
+					bugPathTowards(target.getLocation(), rc.getLocation().directionTo(target.getLocation()));
+					//moveTowards(target.getLocation());
 				}
 				boolean willHitFriend = false;
 				for(RobotInfo r: friendlies){
@@ -107,7 +129,7 @@ public class Soldier extends BaseRobot {
 						rc.fireSingleShot(rc.getLocation().directionTo(t.location));
 					}
 				}
-			}*/
+			}
 
 			TreeInfo[] enemyTrees = rc.senseNearbyTrees(-1, rc.getTeam().opponent());
 			if(enemyTrees.length > 0){
@@ -116,11 +138,25 @@ public class Soldier extends BaseRobot {
 						rc.fireSingleShot(rc.getLocation().directionTo(t.location));
 					}
 				}
-			}
+			}*/
 		} catch (Exception e) {
 			System.out.println("Soldier Exception");
 			e.printStackTrace();
 		}
+		for(int i = 0; i < 3;i++){
+			if(lastTurns[i] == null){
+				lastTurns[i] = rc.getLocation();
+			}
+		}
+		
+			if(lastTurns[2] != null){
+				lastTurns[0] = lastTurns[1];
+				lastTurns[1] = lastTurns[2];
+				lastTurns[2] = rc.getLocation();
+			}
+		
+		
+		
 		Clock.yield();
 	}
 	public RobotInfo closestRobot(RobotInfo[] robots){
@@ -155,19 +191,34 @@ public class Soldier extends BaseRobot {
 			}
 		}
 	}
-	public void bugPathTowards(MapLocation Loc1) throws GameActionException{
-		MapLocation[] nodes = new MapLocation[10];
-		for(int i = 0; i < 10; i++){
-			Direction dir = new Direction((float) (i* (Math.PI/5)));
-			nodes[i] = new MapLocation(rc.getLocation().x + dir.getDeltaX(GameConstants.MAX_ROBOT_RADIUS), rc.getLocation().y + dir.getDeltaY(GameConstants.MAX_ROBOT_RADIUS));;
-			
+	public void bugPathTowards(MapLocation Loc1, Direction dir1) throws GameActionException{
+		if(lastTurns[0].equals(lastTurns[2])){
+			System.out.println("stuck");
+			DirectionBool = !DirectionBool;
 		}
-		for(int i = 0; i <10; i ++){
-			if(rc.senseRobotAtLocation(nodes[i]) != null || rc.senseTreeAtLocation(nodes[i]) != null ){
-				rc.setIndicatorDot(nodes[i], 1000, 100, 0);
-			}else{
-			rc.setIndicatorDot(nodes[i], 100, 1000, 0);
+		if(dir1 == null){
+			dir1 = rc.getLocation().directionTo(Loc1);
+		}
+		if(rc.getLocation().distanceTo(Loc1) > rc.getType().strideRadius*3){
+			double targetX = rc.getLocation().x + rc.getType().strideRadius * Math.cos(dir1.getAngleDegrees());
+			double targetY = rc.getLocation().y + rc.getType().strideRadius * Math.sin(dir1.getAngleDegrees());
+			MapLocation targetLocation = new MapLocation((float)targetX, (float)targetY);
+			if(rc.senseTreeAtLocation(targetLocation) == null){
+				for(int x = 0; x < 36; x++){
+					if(DirectionBool == false){
+						if(rc.canMove(dir1.rotateLeftDegrees(x*10))){
+							rc.move(dir1.rotateLeftDegrees(x*10));
+						}
+					}
+					if(DirectionBool == true){
+						if(rc.canMove(dir1.rotateRightDegrees(x*10))){
+							rc.move(dir1.rotateRightDegrees(x*10));
+						}
+					}
+				}
 			}
+		}else{
+			moveTowards(Loc1);
 		}
 	}
 	public void soldierMove(Team t) {
