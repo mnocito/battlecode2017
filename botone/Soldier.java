@@ -204,6 +204,7 @@ public class Soldier extends BaseRobot {
 		}
 	}
 	public void bugPathTowards(MapLocation Loc1, Direction dir1) throws GameActionException{
+		System.out.println("bug pathing");
 		for(int x = 0; x <3 ; x++){
 			if(lastTurns[x].x == rc.getLocation().x && lastTurns[x].y == rc.getLocation().y ){
 				DirectionBool = !DirectionBool;
