@@ -78,6 +78,13 @@ public class Soldier extends BaseRobot {
 					moveTowards(initialEnemyArchon);
 				} else if(!hasmoved && rc.readBroadcast(9) != 0){
 					bugPathTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))));
+					if(rc.canSenseLocation(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)))){
+						if(rc.senseRobotAtLocation(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))) == null){
+							rc.broadcast(9, (int)initialEnemyArchon.x);
+							rc.broadcast(10,(int) initialEnemyArchon.y);
+						}
+						
+					}
 					//moveTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
 				}
 				rc.setIndicatorLine(rc.getLocation(), new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), 50, 50, 100);
@@ -197,10 +204,14 @@ public class Soldier extends BaseRobot {
 		}
 	}
 	public void bugPathTowards(MapLocation Loc1, Direction dir1) throws GameActionException{
-		if(lastTurns[0].equals(lastTurns[2])){
-			System.out.println("stuck");
-			DirectionBool = !DirectionBool;
+		for(int x = 0; x <3 ; x++){
+			if(lastTurns[x].x == rc.getLocation().x && lastTurns[x].y == rc.getLocation().y ){
+				DirectionBool = !DirectionBool;
+				System.out.println("stuck my guy");
+				break;
+			}
 		}
+		
 		if(dir1 == null){
 			dir1 = rc.getLocation().directionTo(Loc1);
 		}

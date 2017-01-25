@@ -50,18 +50,6 @@ public class Gardener extends BaseRobot {
 		
 		float teamBullets = rc.getTeamBullets();
 		roundsExisted++;
-		
-		if(robots.length > 0){
-			rc.broadcast(50, (int)robots[0].getLocation().x);
-			if (rc.readBroadcast(11) != robots[0].getID()) {
-				rc.broadcast(9, (int) robots[0].getLocation().x);
-				System.out.println(robots[0].getLocation().x);
-				rc.broadcast(10, (int) robots[0].getLocation().y);
-				System.out.println(robots[0].getLocation().y);
-				rc.broadcast(11, (int) robots[0].getID());// target ID
-				rc.broadcast(12, (int) robots[0].health);
-			}
-		}
 		if(teamBullets > 150) {
 			spawnRobots();
 		}
@@ -222,10 +210,17 @@ public class Gardener extends BaseRobot {
 		}
 	}
 	void spawnRobots() {
-		if(amts[2] < 2) {
+		if(rc.senseNearbyTrees(-1, Team.NEUTRAL).length > 5) {
+			if(amts[1] < 1) {
+				spawnRobot(RobotType.LUMBERJACK, 1);
+			} 
+		}
+		if(amts[2] < 1) {
 			spawnRobot(RobotType.SOLDIER, 2);
 		} else if(amts[1] < 1) {
 			spawnRobot(RobotType.LUMBERJACK, 1);
+		} else if(amts[2] < 2) {
+			spawnRobot(RobotType.SOLDIER, 1);
 		} else if(amts[0] < 1) {
 			spawnRobot(RobotType.SCOUT, 0);
 		} else if(amts[2] < 10) {
