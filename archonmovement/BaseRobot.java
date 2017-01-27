@@ -66,11 +66,11 @@ public abstract class BaseRobot {
         // A move never happened, so return false.
         return false;
     }
-    boolean nearArchon(RobotType type, Team t) {
-    	RobotInfo[] rbx = rc.senseNearbyRobots(type.sensorRadius, t);
+    boolean nearArchon(Team t) {
+    	RobotInfo[] rbx = rc.senseNearbyRobots(-1, t);
     	for(RobotInfo r : rbx) {
-    		if(r.type == RobotType.ARCHON && rc.getLocation().distanceTo(r.location) < type.sensorRadius / 1.5) {
-    			return false;
+    		if(r.type == RobotType.ARCHON) {
+    			return true;
     		}
     	}
     	return false;

@@ -10,6 +10,7 @@ public strictfp class RobotPlayer {
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
     **/
+    // working
     @SuppressWarnings("unused")
 	
     public static void run(RobotController rc) throws GameActionException {
@@ -56,9 +57,9 @@ public strictfp class RobotPlayer {
             		scout.run();
             	}
             case TANK: 
-            	soldier.init();
+            	tank.init();
             	while(true) {
-            		soldier.run();
+            		tank.run();
             	}
         }
 	}

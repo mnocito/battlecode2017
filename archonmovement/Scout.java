@@ -7,6 +7,7 @@ public class Scout extends BaseRobot {
 	boolean inTree = false;
 	MapLocation lastSpottedEnemy = null;
 	Team myTeam = rc.getTeam();
+	MapLocation initialEnemyArchon = rc.getInitialArchonLocations(myTeam.opponent())[0];
 	public Scout(RobotController rc) {
 		super(rc);
 		if(myTeam == Team.A) {
@@ -30,7 +31,7 @@ public class Scout extends BaseRobot {
 	
 			// If there are some...
 			RobotInfo robot = null;
-			if(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7) != 0) {
+			if(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7) != 0 && !nearArchon(myTeam)) {
 				System.out.println("going to archon " + Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7)));
 				moveTowards(new MapLocation(Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7)), Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 8))));
 			}  
@@ -52,8 +53,9 @@ public class Scout extends BaseRobot {
 				Direction robotDirection = myLocation.directionTo(robot.location);
 				if(rc.canFireSingleShot()) {
 					rc.fireSingleShot(robotDirection);
+				} else {
+					moveTowards(robot.location);	
 				}
-				moveTowards(robot.location);
 			} else if(neutrees.length > 0) {
 				TreeInfo neuTree = null;
 				for(TreeInfo t : neutrees) {
@@ -73,10 +75,10 @@ public class Scout extends BaseRobot {
 						rc.move(myLocation.directionTo(neuTree.location));
 					}
 				} else {
-					scoutMove(enemy);
+					moveTowards(initialEnemyArchon);
 				}
 			} else {
-				scoutMove(enemy);
+				moveTowards(initialEnemyArchon);
 			}
 		/*	TreeInfo[] trees = rc.senseNearbyTrees(RobotType.GARDENER.sensorRadius, enemy);
 			if(trees.length > 0) {
