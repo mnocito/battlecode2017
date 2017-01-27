@@ -75,16 +75,9 @@ public class Soldier extends BaseRobot {
 			RobotInfo[] friendlies = rc.senseNearbyRobots(-1, rc.getTeam()); 
 			if (robots.length == 0 ) {
 				if(!hasmoved && rc.readBroadcast(9) == 0) {
-					moveTowards(initialEnemyArchon);
+					bugPathTowards(initialEnemyArchon, null);
 				} else if(!hasmoved && rc.readBroadcast(9) != 0){
 					bugPathTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))));
-					if(rc.canSenseLocation(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)))){
-						if(rc.senseRobotAtLocation(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))) == null){
-							rc.broadcast(9, (int)initialEnemyArchon.x);
-							rc.broadcast(10,(int) initialEnemyArchon.y);
-						}
-						
-					}
 					//moveTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
 				}
 				rc.setIndicatorLine(rc.getLocation(), new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), 50, 50, 100);
@@ -92,9 +85,9 @@ public class Soldier extends BaseRobot {
 					targetRobotID = rc.readBroadcast(11);
 					targetRobotLocation = new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10));
 				}
-				if(rc.getLocation().distanceTo(targetRobotLocation) < 2){
-					rc.broadcast(9, rc.readBroadcast(9) + 1);
-					rc.broadcast(10, rc.readBroadcast(10) + 1);
+				if(rc.getLocation().distanceTo(targetRobotLocation) < RobotType.SOLDIER.sensorRadius){
+					rc.broadcast(9, (int)initialEnemyArchon.x);
+					rc.broadcast(9, (int)initialEnemyArchon.y);
 				}
 			}else{
 				RobotInfo target = closestRobot(robots);
@@ -104,7 +97,15 @@ public class Soldier extends BaseRobot {
 					rc.move(rc.getLocation().directionTo(target.location), 1);
 				}else{
 					//bugPathTowards(target.getLocation(), rc.getLocation().directionTo(target.getLocation()));
+					
 					moveTowards(target.getLocation());
+					if(rc.canSenseLocation(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)))){
+						if(rc.senseRobotAtLocation(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))) == null){
+							rc.broadcast(9, (int)initialEnemyArchon.x);
+							rc.broadcast(10,(int) initialEnemyArchon.y);
+						}
+						
+					}
 				}
 				boolean willHitFriend = false;
 				for(RobotInfo r: friendlies){
@@ -204,15 +205,10 @@ public class Soldier extends BaseRobot {
 		}
 	}
 	public void bugPathTowards(MapLocation Loc1, Direction dir1) throws GameActionException{
-		System.out.println("bug pathing");
-		for(int x = 0; x <3 ; x++){
-			if(lastTurns[x].x == rc.getLocation().x && lastTurns[x].y == rc.getLocation().y ){
-				DirectionBool = !DirectionBool;
-				System.out.println("stuck my guy");
-				break;
-			}
+		if(lastTurns[0].equals(lastTurns[2])){
+			System.out.println("stuck");
+			DirectionBool = !DirectionBool;
 		}
-		
 		if(dir1 == null){
 			dir1 = rc.getLocation().directionTo(Loc1);
 		}
