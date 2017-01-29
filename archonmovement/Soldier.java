@@ -33,8 +33,8 @@ public class Soldier extends BaseRobot {
 		MapLocation lastSpottedEnemy = null;
 		if (robots.length > 0) {
 			robot = robots[0];
-			float archonX = intToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 7));
-			float archonY = intToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 8));
+			float archonX = Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 5));
+			float archonY = Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 6));
 			
 			MapLocation archonLoc = new MapLocation(archonX, archonY);
 			lastSpottedEnemy = new MapLocation(robots[0].getLocation().x, robots[0].getLocation().y);
@@ -44,11 +44,16 @@ public class Soldier extends BaseRobot {
 				rc.broadcast(11, (int)robots[0].getID());//target ID
 				rc.broadcast(12, (int)robots[0].health);
 			}
+		} else {
 			if(rc.getLocation().distanceTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))) < RobotType.SOLDIER.sensorRadius) {
-				rc.broadcast(9, (int)initialEnemyArchon.x);
-				rc.broadcast(10, (int)initialEnemyArchon.y);
+				if(rc.readBroadcast(9) == (int)initialEnemyArchon.x && rc.readBroadcast(10) == (int)initialEnemyArchon.y) {
+					MapLocation[] initialEnemyArchons = rc.getInitialArchonLocations(myTeam.opponent());
+					if(initialEnemyArchons.length > 1) {
+						rc.broadcast(9, (int)initialEnemyArchons[1].x);
+						rc.broadcast(10, (int)initialEnemyArchons[1].y);
+					}
+				}
 			}
-		} else if(rc.readBroadcast(9) != 0) {
 			lastSpottedEnemy = new MapLocation(rc.readBroadcast(9), rc.readBroadcast(10));
 		}
 		
@@ -78,9 +83,7 @@ public class Soldier extends BaseRobot {
 			// See if there are any nearby enemy robots
 			RobotInfo[] friendlies = rc.senseNearbyRobots(-1, rc.getTeam()); 
 			if (robots.length == 0 ) {
-				if(!hasmoved && rc.readBroadcast(9) == 0) {
-					bugPathTowards(initialEnemyArchon, new Direction(0));
-				} else if(!hasmoved && rc.readBroadcast(9) != 0){
+				if(!hasmoved && rc.readBroadcast(9) != 0){
 					bugPathTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), rc.getLocation().directionTo(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))));
 					//moveTowards(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)));
 				}
@@ -94,23 +97,7 @@ public class Soldier extends BaseRobot {
 					rc.broadcast(9, (int)initialEnemyArchon.y);
 				}
 			}else{
-				RobotInfo target = closestRobot(robots);
-				if(rc.canMove(target.getLocation())){
-					rc.move(target.location);;
-				}else if(rc.canMove(rc.getLocation().directionTo(target.location), 1)){
-					rc.move(rc.getLocation().directionTo(target.location), 1);
-				}else{
-					//bugPathTowards(target.getLocation(), rc.getLocation().directionTo(target.getLocation()));
-					
-					moveTowards(target.getLocation());
-					if(rc.canSenseLocation(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)))){
-						if(rc.senseRobotAtLocation(new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10))) == null){
-							rc.broadcast(9, (int)initialEnemyArchon.x);
-							rc.broadcast(10,(int) initialEnemyArchon.y);
-						}
-						
-					}
-				}
+				RobotInfo target = robots[0];
 				boolean willHitFriend = false;
 				for(RobotInfo r: friendlies){
 					if(Math.abs(rc.getLocation().directionTo(r.location).radians - rc.getLocation().directionTo(target.location).radians) < .4 ){
@@ -216,27 +203,36 @@ public class Soldier extends BaseRobot {
 		if(dir1 == null){
 			dir1 = rc.getLocation().directionTo(Loc1);
 		}
-		if(rc.getLocation().distanceTo(Loc1) > rc.getType().strideRadius*4){
-			double targetX = rc.getLocation().x + rc.getType().strideRadius * Math.cos(dir1.getAngleDegrees());
-			double targetY = rc.getLocation().y + rc.getType().strideRadius * Math.sin(dir1.getAngleDegrees());
-			MapLocation targetLocation = new MapLocation((float)targetX, (float)targetY);
-			if(rc.senseTreeAtLocation(targetLocation) == null){
-				for(int x = 0; x < 36; x++){
-					if(DirectionBool == false){
-						if(rc.canMove(dir1.rotateLeftDegrees(x*10))){
-							rc.move(dir1.rotateLeftDegrees(x*10));
+		try {
+			if(!rc.hasMoved()) {
+				if(rc.getLocation().distanceTo(Loc1) > rc.getType().strideRadius*4){
+					double targetX = rc.getLocation().x + rc.getType().strideRadius * Math.cos(dir1.getAngleDegrees());
+					double targetY = rc.getLocation().y + rc.getType().strideRadius * Math.sin(dir1.getAngleDegrees());
+					MapLocation targetLocation = new MapLocation((float)targetX, (float)targetY);
+					if(rc.senseTreeAtLocation(targetLocation) == null){
+						for(int x = 0; x < 36; x++){
+							if(DirectionBool == false){
+								if(rc.canMove(dir1.rotateLeftDegrees(x*10))){
+									rc.move(dir1.rotateLeftDegrees(x*10));
+									break;
+								}
+							}
+							if(DirectionBool == true){
+								if(rc.canMove(dir1.rotateRightDegrees(x*10))){
+									rc.move(dir1.rotateRightDegrees(x*10));
+									break;
+								}
+							}
 						}
 					}
-					if(DirectionBool == true){
-						if(rc.canMove(dir1.rotateRightDegrees(x*10))){
-							rc.move(dir1.rotateRightDegrees(x*10));
-						}
-					}
+				}else{
+					moveTowards(Loc1);
 				}
 			}
-		}else{
-			moveTowards(Loc1);
+		} catch (GameActionException e) {
+			moveTowards(rc.getLocation().add(dir1));
 		}
+		
 	}
 	public void soldierMove(Team t) {
 		try {		
