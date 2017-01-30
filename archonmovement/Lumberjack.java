@@ -8,6 +8,7 @@ public class Lumberjack extends BaseRobot {
 	static boolean claimed = false;
 	static int addAngle = 10;
 	TreeInfo targetTree = null;
+	MapLocation initialEnemyArchon = rc.getInitialArchonLocations(rc.getTeam().opponent())[0];
 	public Lumberjack(RobotController rc) {
 		super(rc);
 		// TODO Auto-generated constructor stub
@@ -20,52 +21,52 @@ public class Lumberjack extends BaseRobot {
 		TreeInfo[] trees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
 		TreeInfo[] enemTrees = null;
 		enemTrees = rc.senseNearbyTrees(GameConstants.LUMBERJACK_STRIKE_RADIUS, rc.getTeam().opponent());
-
-		if(trees.length > 0 || targetTree != null) {
-			if(targetTree == null) {
-				targetTree = trees[0];
+		RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+		if(robots.length > 0) {
+			if (rc.readBroadcast(11) != robots[0].getID()) {
+				rc.broadcast(9, (int) robots[0].getLocation().x);
+				rc.broadcast(10, (int) robots[0].getLocation().y);
+				rc.broadcast(11, (int) robots[0].getID());// target ID
+				rc.broadcast(12, (int) robots[0].health);
 			}
-			if(!rc.canChop(targetTree.ID)) {
-				targetTree = trees[0];
-			}
-			chopTree(targetTree);
-			rc.setIndicatorDot(targetTree.location, 100, 100, 100);
-			if(rc.getLocation().distanceTo(targetTree.location) > targetTree.radius + RobotType.LUMBERJACK.bodyRadius) {
-				moveToTree(targetTree);
-			}
-		} else {
-			RobotInfo[] robots = rc.senseNearbyRobots(2, rc.getTeam().opponent());
-			if(robots.length > 0) {
-				if (rc.readBroadcast(11) != robots[0].getID()) {
-					rc.broadcast(9, (int) robots[0].getLocation().x);
-					System.out.println(robots[0].getLocation().x);
-					rc.broadcast(10, (int) robots[0].getLocation().y);
-					System.out.println(robots[0].getLocation().y);
-					rc.broadcast(11, (int) robots[0].getID());// target ID
-					rc.broadcast(12, (int) robots[0].health);
-				}
-				strikeBot(robots[0]);
-			}
-			
-			if (channel != -1) {
-				rc.broadcast(channel+2, rc.getID());
-				
+			strikeBot(robots[0]);
+		}
 		
-			}else{
-				for (int i = 100; i < GameConstants.BROADCAST_MAX_CHANNELS; i+=4) {
-					if (rc.readBroadcast(i+2) < 0) { // if this is not a "claimed" gardener, then claim it.
-						rc.broadcast(i+2, rc.getID());
-						target = new MapLocation(rc.readBroadcast(i), rc.readBroadcast(i+1));
-						channel = i;
-						System.out.println(channel);
-						break;
+		if(!rc.canMove(initialEnemyArchon)) {
+			if(trees.length > 0 || targetTree != null) {
+				if(targetTree == null) {
+					targetTree = trees[0];
+				}
+				if(!rc.canChop(targetTree.ID) && trees.length > 0) {
+					targetTree = trees[0];
+				}
+				chopTree(targetTree);
+				rc.setIndicatorDot(targetTree.location, 100, 100, 100);
+				moveTowards(targetTree.location);
+			} else {
+				if (channel != -1) {
+					rc.broadcast(channel+2, rc.getID());
+					
+			
+				}else{
+					for (int i = 100; i < GameConstants.BROADCAST_MAX_CHANNELS; i+=4) {
+						if (rc.readBroadcast(i+2) < 0) { // if this is not a "claimed" gardener, then claim it.
+							rc.broadcast(i+2, rc.getID());
+							target = new MapLocation(rc.readBroadcast(i), rc.readBroadcast(i+1));
+							channel = i;
+							System.out.println(channel);
+							break;
+						}
 					}
 				}
+				if(!rc.hasMoved()){
+					randMove();
+				}
 			}
-			if(!rc.hasMoved()){
-				randMove();
-			}
+		} else {
+			rc.move(rc.getLocation().directionTo(initialEnemyArchon));
 		}
+		
 		Clock.yield();
 	}
 	public void circleTowards(MapLocation loc1) throws GameActionException{
@@ -122,17 +123,17 @@ public class Lumberjack extends BaseRobot {
 	}
 
 	void chopTree(TreeInfo tree) {
-		if(rc.canChop(tree.ID)) {
+		if(rc.canShake(tree.ID)) {
 			try {
-				rc.chop(tree.ID);
+				rc.shake(tree.ID);
 			} catch (GameActionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		if(rc.canShake(tree.ID)) {
+		if(rc.canChop(tree.ID)) {
 			try {
-				rc.shake(tree.ID);
+				rc.chop(tree.ID);
 			} catch (GameActionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

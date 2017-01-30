@@ -27,8 +27,10 @@ public class Archon extends BaseRobot {
 		}
 	}
 	void run() throws GameActionException {
-		System.out.println("channel 9 " + rc.readBroadcast(9));
-		if( rc.readBroadcast(9) == 0) {
+		if(rc.getTeamBullets() > 1300) {
+			rc.donate(1000);
+		}
+		if(rc.readBroadcast(9) == 0) {
 			rc.broadcast(9, (int)initialEnemyArchon.x);
 			rc.broadcast(10, (int)initialEnemyArchon.y);
 		}
@@ -46,10 +48,6 @@ public class Archon extends BaseRobot {
 			// If there are some...
 			float enemX = rc.readBroadcast(9);
 			float enemY = rc.readBroadcast(10);
-			if(enemX != 0 && rc.senseNearbyRobots(new MapLocation(enemX, enemY), -1, enemy) == null) {
-				rc.broadcast(9, (int) (enemX + Math.random()));
-				rc.broadcast(10, (int) (enemY + Math.random()));
-			}
 			if (robots.length > 0) {
 				rc.broadcast(9, (int)robots[0].location.x);
 				rc.broadcast(10, (int)robots[0].location.y);
@@ -58,11 +56,11 @@ public class Archon extends BaseRobot {
 				rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS - 8, 0);
 			}
 			float hp = rc.getHealth();
-		
+
 		} catch (GameActionException e) {
 
 		}
-		if(rc.getTeamBullets() > 150) {
+		if(rc.getTeamBullets() > 135) {
 			int curRound = rc.getRoundNum();
 			if(curRound < 100 && gardenersMade == 0) {
 				if(myInitArchonLocations[0].x == myLocation.x && myInitArchonLocations[0].y == myLocation.y) {
@@ -74,7 +72,7 @@ public class Archon extends BaseRobot {
 				} 
 			}
 			if(dirListIndex != -1) {
-			//	MapLocation destination = rc.getLocation().add(dirList[dirListIndex].rotateLeftDegrees(180), 2);
+				//	MapLocation destination = rc.getLocation().add(dirList[dirListIndex].rotateLeftDegrees(180), 2);
 				moveTowards(dirList[dirListIndex]);
 			}
 		}
@@ -132,40 +130,42 @@ public class Archon extends BaseRobot {
 	void tryGardener() {
 		try {
 			int curRound = rc.getRoundNum();
-			if(curRound % 30 == 0 || curRound < 2) {
+			if(curRound % 100 == 0 || curRound < 4) {
 				System.out.println("current round: " + curRound);
 				int gardenerDirection = (int)(Math.random() * ((5) + 1));
-					while(!rc.canHireGardener(dirList[gardenerDirection])) {
-						gardenerDirection = (int)(Math.random() * ((5) + 1));
-					}
-					if(curRound < 2) {				
-						if(rc.canHireGardener(rc.getLocation().directionTo(initialEnemyArchon))) {
-							rc.hireGardener(rc.getLocation().directionTo(initialEnemyArchon));
+				while(!rc.canHireGardener(dirList[gardenerDirection])) {
+					gardenerDirection = (int)(Math.random() * ((5) + 1));
+				}
+				if(curRound < 4) {				
+					if(rc.canHireGardener(rc.getLocation().directionTo(initialEnemyArchon))) {
+						rc.hireGardener(rc.getLocation().directionTo(initialEnemyArchon));
+						return;
+					} else {
+						//	for(int i = 0; i < 6; i++) {
+						if(rc.canHireGardener(dirList[gardenerDirection])) {
+							System.out.println("gard dir " + gardenerDirection);
+							rc.broadcast(420, gardenerDirection);
+							rc.hireGardener(dirList[gardenerDirection]);
+							moveTowards(rc.getLocation().add(dirList[gardenerDirection].rotateLeftDegrees(180)));
+							dirListIndex = gardenerDirection;
+							gardenersMade++;
 							return;
-						} else {
-							for(int i = 0; i < 6; i++) {
-								if(rc.canHireGardener(dirList[i])) {
-									System.out.println("gard dir" + i);
-									rc.broadcast(420, i);
-									rc.hireGardener(dirList[i]);
-									moveTowards(rc.getLocation().add(dirList[i].rotateLeftDegrees(180)));
-									dirListIndex = i;
-									gardenersMade++;
-									return;
-								}
-							}
+						}
+						//	}
+					}
+				} else {
+					for(int i = 0; i < 6; i++) {
+						if(rc.canHireGardener(dirList[i])) {
+							System.out.println("gard dir" + i);
+							rc.broadcast(420, i);
+							rc.hireGardener(dirList[i]);
+							moveTowards(rc.getLocation().add(dirList[i].rotateLeftDegrees(180)));
+							dirListIndex = i;
+							gardenersMade++;
+							return;
 						}
 					}
-					if(rc.canHireGardener(dirList[gardenerDirection])) {
-						System.out.println("gard dir" + gardenerDirection);
-						rc.broadcast(420, gardenerDirection);
-						rc.hireGardener(dirList[gardenerDirection]);
-						moveTowards(rc.getLocation().add(dirList[gardenerDirection].rotateLeftDegrees(180)));
-						dirListIndex = gardenerDirection;
-						gardenersMade++;
-						Clock.yield();
-						//}
-					}
+				}
 			}
 		} catch (GameActionException e) {
 			// TODO Auto-generated catch block
@@ -212,15 +212,15 @@ public class Archon extends BaseRobot {
 				MapLocation gardener_target = new MapLocation(avg_x, avg_y);
 				rc.setIndicatorDot(gardener_target, 0 , 0, 1000);
 				System.out.println(gardener_target);
-				
-					try {
-						moveTowards(gardener_target);
-						rc.setIndicatorDot(gardener_target, 1000, 0, 1000);
-					} catch(GameActionException e) {
-						e.printStackTrace();
-					}
-					System.out.println("move towards");
-				
+
+				try {
+					moveTowards(gardener_target);
+					rc.setIndicatorDot(gardener_target, 1000, 0, 1000);
+				} catch(GameActionException e) {
+					e.printStackTrace();
+				}
+				System.out.println("move towards");
+
 			}
 		} catch (GameActionException e1) {
 			// TODO Auto-generated catch block

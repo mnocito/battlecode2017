@@ -16,7 +16,8 @@ public class Scout extends BaseRobot {
 			scoutDir = 0;
 		}
 	}
-	
+	public MapLocation[] lastTurns = new MapLocation[3];
+	public boolean DirectionBool = false;
 	public void run() throws GameActionException {
 		MapLocation archonLoc = new MapLocation(Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS-5)),Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS-6)));	
 		MapLocation myLocation = rc.getLocation();
@@ -38,25 +39,15 @@ public class Scout extends BaseRobot {
 			RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
 			if (robots.length > 0) {
 				robot = robots[0];
-				lastSpottedEnemy = new MapLocation(robots[0].getLocation().x, robots[0].getLocation().y);
 				if(rc.readBroadcast(11)!= robots[0].getID() ){
 					rc.broadcast(9, (int)robots[0].getLocation().x);
 					rc.broadcast(10, (int)robots[0].getLocation().y);
 					rc.broadcast(11, (int)robots[0].getID());//target ID
 					rc.broadcast(12, (int)robots[0].health);
 				}
-			} else if(rc.readBroadcast(9) != 0) {
-				lastSpottedEnemy = new MapLocation(rc.readBroadcast(9), rc.readBroadcast(10));
-			}
+			} 
 			TreeInfo[] neutrees = rc.senseNearbyTrees(RobotType.SCOUT.sensorRadius, Team.NEUTRAL);
-			if(robot != null) {
-				Direction robotDirection = myLocation.directionTo(robot.location);
-				if(rc.canFireSingleShot()) {
-					rc.fireSingleShot(robotDirection);
-				} else {
-					moveTowards(robot.location);	
-				}
-			} else if(neutrees.length > 0) {
+			if(neutrees.length > 0) {
 				TreeInfo neuTree = null;
 				for(TreeInfo t : neutrees) {
 					if(t.containedBullets > 0) {
@@ -70,16 +61,44 @@ public class Scout extends BaseRobot {
 					if(rc.canShake(neuTree.location)) {
 						rc.shake(neuTree.location);
 					}
-					if(rc.canMove(myLocation.directionTo(neuTree.location))) {
-						System.out.println("moving doe");
-						rc.move(myLocation.directionTo(neuTree.location));
-					}
-				} else {
-					moveTowards(initialEnemyArchon);
+					bugPathTowards(neuTree.location, null);
+				} else if(robot != null) {
+					Direction robotDirection = myLocation.directionTo(robot.location);
+					if(rc.canFireSingleShot()) {
+						rc.fireSingleShot(robotDirection);
+					} //else {
+					moveTowards(robot.location);	
+				//	}{
+					
 				}
+			} else if(robot != null) {
+				Direction robotDirection = myLocation.directionTo(robot.location);
+				if(rc.canFireSingleShot()) {
+					rc.fireSingleShot(robotDirection);
+				} //else {
+				moveTowards(robot.location);	
+			//	}
 			} else {
-				moveTowards(initialEnemyArchon);
+				if(initialEnemyArchon != null) {
+					if(rc.getLocation().distanceTo(initialEnemyArchon) < RobotType.SCOUT.sensorRadius) {
+						initialEnemyArchon = null;
+					} 
+				}
+				scoutMove(enemy);
 			}
+			for(int i = 0; i < 3;i++){
+				if(lastTurns[i] == null){
+					lastTurns[i] = rc.getLocation();
+				}
+			}
+			
+				if(lastTurns[2] != null){
+					lastTurns[0] = lastTurns[1];
+					lastTurns[1] = lastTurns[2];
+					lastTurns[2] = rc.getLocation();
+				}
+			
+			
 		/*	TreeInfo[] trees = rc.senseNearbyTrees(RobotType.GARDENER.sensorRadius, enemy);
 			if(trees.length > 0) {
 				MapLocation enemLoc = trees[0].location;
@@ -120,8 +139,46 @@ public class Scout extends BaseRobot {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		moveTowards(initialEnemyArchon);
 		Clock.yield();
+	}
+	public void bugPathTowards(MapLocation Loc1, Direction dir1) throws GameActionException{
+		rc.setIndicatorLine(rc.getLocation(), Loc1, 100, 100, 100);
+		if(lastTurns[0].equals(lastTurns[2])){
+			System.out.println("stuck");
+			DirectionBool = !DirectionBool;
+		}
+		if(dir1 == null){
+			dir1 = rc.getLocation().directionTo(Loc1);
+		}
+		try {
+			if(!rc.hasMoved()) {
+				if(rc.getLocation().distanceTo(Loc1) > rc.getType().strideRadius*4){
+					double targetX = rc.getLocation().x + rc.getType().strideRadius * Math.cos(dir1.getAngleDegrees());
+					double targetY = rc.getLocation().y + rc.getType().strideRadius * Math.sin(dir1.getAngleDegrees());
+					MapLocation targetLocation = new MapLocation((float)targetX, (float)targetY);
+					if(rc.senseTreeAtLocation(targetLocation) == null){
+						for(int x = 0; x < 36; x++){
+							if(DirectionBool == false){
+								if(rc.canMove(dir1.rotateLeftDegrees(x*10))){
+									rc.move(dir1.rotateLeftDegrees(x*10));
+									break;
+								}
+							}
+							if(DirectionBool == true){
+								if(rc.canMove(dir1.rotateRightDegrees(x*10))){
+									rc.move(dir1.rotateRightDegrees(x*10));
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (GameActionException e) {
+			moveTowards(rc.getLocation().add(dir1));
+		}
+		
 	}
 	public void moveTowards(MapLocation loc1) throws GameActionException{
 		int r_l = 15;
