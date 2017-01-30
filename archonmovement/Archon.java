@@ -88,7 +88,32 @@ public class Archon extends BaseRobot {
 			rc.setIndicatorDot(target, 10000, 0, 1000);
 			if(rc.canHireGardener(dir)){
 				rc.hireGardener(dir);
+				gardenersMade++;
 			}
+		}
+	}
+
+	void tryGardener() {
+		try {
+			int curRound = rc.getRoundNum();
+			if(curRound % 100 == 0 || curRound < 4) {
+				emlynTryGardener();
+				if(curRound < 4) {				
+					if(rc.canHireGardener(rc.getLocation().directionTo(initialEnemyArchon))) {
+						emlynTryGardener();
+						return;
+					} else {
+						//	for(int i = 0; i < 6; i++) {
+						emlynTryGardener();
+						//	}
+					}
+				} else {
+					emlynTryGardener();
+				}
+			}
+		} catch (GameActionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	public void moveTowards(Direction dir) throws GameActionException{
@@ -138,51 +163,6 @@ public class Archon extends BaseRobot {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-	}
-	void tryGardener() {
-		try {
-			int curRound = rc.getRoundNum();
-			if(curRound % 100 == 0 || curRound < 4) {
-				System.out.println("current round: " + curRound);
-				int gardenerDirection = (int)(Math.random() * ((5) + 1));
-				while(!rc.canHireGardener(dirList[gardenerDirection])) {
-					gardenerDirection = (int)(Math.random() * ((5) + 1));
-				}
-				if(curRound < 4) {				
-					if(rc.canHireGardener(rc.getLocation().directionTo(initialEnemyArchon))) {
-						rc.hireGardener(rc.getLocation().directionTo(initialEnemyArchon));
-						return;
-					} else {
-						//	for(int i = 0; i < 6; i++) {
-						if(rc.canHireGardener(dirList[gardenerDirection])) {
-							System.out.println("gard dir " + gardenerDirection);
-							rc.broadcast(420, gardenerDirection);
-							rc.hireGardener(dirList[gardenerDirection]);
-							moveTowards(rc.getLocation().add(dirList[gardenerDirection].rotateLeftDegrees(180)));
-							dirListIndex = gardenerDirection;
-							gardenersMade++;
-							return;
-						}
-						//	}
-					}
-				} else {
-					for(int i = 0; i < 6; i++) {
-						if(rc.canHireGardener(dirList[i])) {
-							System.out.println("gard dir" + i);
-							rc.broadcast(420, i);
-							rc.hireGardener(dirList[i]);
-							moveTowards(rc.getLocation().add(dirList[i].rotateLeftDegrees(180)));
-							dirListIndex = i;
-							gardenersMade++;
-							return;
-						}
-					}
-				}
-			}
-		} catch (GameActionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	void arcMove() {
