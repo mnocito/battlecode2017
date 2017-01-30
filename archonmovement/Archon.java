@@ -127,6 +127,15 @@ public class Archon extends BaseRobot {
 			}
 		}
 	}
+	/*void getGardenerDirection(){
+		for(int i = 0; i < 10; i++){
+			MapLocation testLocation = new MapLocation((float)rc.getLocation().x +(float) Math.cos(36*i),(float) rc.getLocation().y + (float)Math.sin(36*i));
+				
+			if(rc.senseNearbyRobots(testLocation, rc.Robot, rc.getTeam()) != null){
+				
+			}
+		}
+	}*/
 	void tryGardener() {
 		try {
 			int curRound = rc.getRoundNum();

@@ -71,26 +71,60 @@ public class Gardener extends BaseRobot {
 		System.out.println(fourth);
 		System.out.println(fifth);
 		System.out.println(sixth);
-		
-		if(first && second && third && fourth && fifth && sixth) {
+		int total = 0;
+		for (int i = 0; i < 6; i++){
+			if(i == 0){
+				if(first){
+					total++;
+				}
+			}
+			if(i == 1){
+				if(second){
+					total++;
+				}
+			}
+			if(i == 2){
+				if(third){
+					total++;
+				}
+			}
+			if(i == 3){
+				if(fourth){
+					total++;
+				}
+			}
+			if(i == 4){
+				if(fifth){
+					total++;
+				}
+			}
+			if(i == 5){
+				if(sixth){
+					total++;
+				}
+			}
+		}
+		if(total == 6) {
 			movement = false;
 			totalTrees = 6;
 			return;
-		} else if(first && third && fifth && roundsExisted > 80) {
+		} else if(total == 5 && roundsExisted > 40){
+			movement = false;
+			totalTrees = 5;
+			return;
+		}
+			else if(total == 4 && roundsExisted > 60){
+					movement = false;
+					totalTrees = 4;
+					return;
+				
+		} else if(total == 3 && roundsExisted > 80) {
 			totalTrees = 3;
 			addedNum = 0;
 			movement = false;
-		} else if(second && fourth && sixth && roundsExisted > 80) {
-			totalTrees = 3;
-			addedNum = 1;
-			movement = false;
-		} else if(first && fourth && roundsExisted > 120) {
+		} else if(total == 2 && roundsExisted > 120) {
 			totalTrees = 2;
 			addedNum = 0;
-			movement = false;
-		} else if(second && fifth && roundsExisted > 120) {
-			totalTrees = 2;
-			addedNum = 1;
 			movement = false;
 		} else {
 			randMove();

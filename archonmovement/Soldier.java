@@ -76,6 +76,50 @@ public class Soldier extends BaseRobot {
 							rc.move(rc.getLocation().directionTo(bulletTarget).rotateLeftDegrees(160));
 							hasmoved = true;
 							rc.setIndicatorDot(bulletTarget, 100, 0, 0);
+							RobotInfo target = robots[0];
+							boolean willHitFriend = false;
+							MapLocation myLoc = rc.getLocation();
+							RobotInfo[] friendlies = rc.senseNearbyRobots(-1,rc.getTeam());
+							for(RobotInfo r: friendlies){
+								if(Math.abs(myLoc.directionTo(r.location).radians - rc.getLocation().directionTo(target.location).radians) < .4 && myLoc.distanceTo(r.location) < myLoc.distanceTo(target.location)){
+									willHitFriend = true;
+									rc.setIndicatorDot(r.location, 0, 1000, 0);
+									break;
+								}		
+							}
+							boolean willHitTree = false;
+							if(!willHitFriend) {
+								TreeInfo[] enemytrees = rc.senseNearbyTrees(-1, enemy);
+								for(TreeInfo r: enemytrees){
+									if(Math.abs(rc.getLocation().directionTo(r.location).radians - rc.getLocation().directionTo(target.location).radians) < .4 && myLoc.distanceTo(r.location) < myLoc.distanceTo(target.location)){
+										willHitTree = true;
+										rc.setIndicatorDot(r.location, 0, 1000, 0);
+										break;
+									}		
+								}
+							}
+							if(rc.getLocation().distanceTo(target.location)<3.5){
+								if(willHitFriend || willHitTree) {
+									bugPathTowards(target.location, null);
+								} else  {
+									if(rc.canFirePentadShot()&& !willHitFriend && !willHitTree){
+										rc.firePentadShot(rc.getLocation().directionTo(target.getLocation()));
+									}else if(rc.canFireTriadShot()&& !willHitFriend && !willHitTree){
+										rc.fireTriadShot(rc.getLocation().directionTo(target.getLocation()));
+									}else if(rc.canFireSingleShot()&& !willHitFriend && !willHitTree){
+										rc.fireSingleShot((rc.getLocation().directionTo(target.getLocation())));
+									} 
+								}
+							} else {
+								bugPathTowards(target.location, null);
+								if(rc.canFireTriadShot() && !willHitFriend && !willHitTree) {
+									rc.fireTriadShot((rc.getLocation().directionTo(target.getLocation())));
+								} else if(rc.canFireSingleShot() && !willHitFriend && !willHitTree) {
+									rc.fireSingleShot((rc.getLocation().directionTo(target.getLocation())));
+								}
+							}
+							targetRobotID = target.ID;
+							targetRobotLocation = target.location;
 						}
 					}
 				}
@@ -140,7 +184,6 @@ public class Soldier extends BaseRobot {
 				}
 				if(rc.getLocation().distanceTo(target.location)<3.5){
 					if(willHitFriend || willHitTree) {
-
 						bugPathTowards(target.location, null);
 					} else  {
 						if(rc.canFirePentadShot()&& !willHitFriend && !willHitTree){
