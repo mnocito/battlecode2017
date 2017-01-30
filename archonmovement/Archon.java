@@ -34,8 +34,8 @@ public class Archon extends BaseRobot {
 			rc.broadcast(9, (int)initialEnemyArchon.x);
 			rc.broadcast(10, (int)initialEnemyArchon.y);
 		}
-		rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS-5, Float.floatToIntBits(rc.getLocation().x));
-		rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS-6, Float.floatToIntBits(rc.getLocation().y));		
+		rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS-5, (int)(rc.getLocation().x));
+		rc.broadcast(GameConstants.BROADCAST_MAX_CHANNELS-6, (int)(rc.getLocation().y));		
 		int numGardeners = 0;
 		MapLocation myLocation = rc.getLocation();
 		for(int i = 100; i < 100+20*4; i+=4){
@@ -77,6 +77,19 @@ public class Archon extends BaseRobot {
 			}
 		}
 		Clock.yield();
+	}
+	void emlynTryGardener() throws GameActionException{
+		for(int i = 0; i < 36; i++){
+			Direction dir = new Direction((float)((Math.PI * 2 )/36) * i);
+			Float distance_to_spawn = rc.getType().bodyRadius+ RobotType.GARDENER.bodyRadius;
+			Float newX = (float) Math.cos(dir.radians * 57);
+			Float newY = (float) Math.sin(dir.radians * 57);
+			MapLocation target = new MapLocation(newX +rc.getLocation().x, newY+rc.getLocation().y);
+			rc.setIndicatorDot(target, 10000, 0, 1000);
+			if(rc.canHireGardener(dir)){
+				rc.hireGardener(dir);
+			}
+		}
 	}
 	public void moveTowards(Direction dir) throws GameActionException{
 		int r_l = 15;
@@ -127,15 +140,6 @@ public class Archon extends BaseRobot {
 			}
 		}
 	}
-	/*void getGardenerDirection(){
-		for(int i = 0; i < 10; i++){
-			MapLocation testLocation = new MapLocation((float)rc.getLocation().x +(float) Math.cos(36*i),(float) rc.getLocation().y + (float)Math.sin(36*i));
-				
-			if(rc.senseNearbyRobots(testLocation, rc.Robot, rc.getTeam()) != null){
-				
-			}
-		}
-	}*/
 	void tryGardener() {
 		try {
 			int curRound = rc.getRoundNum();

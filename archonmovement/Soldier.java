@@ -134,16 +134,16 @@ public class Soldier extends BaseRobot {
 				rc.setIndicatorLine(rc.getLocation(), new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10)), 50, 50, 100);
 				if(targetRobotID != rc.readBroadcast(11)){
 					targetRobotID = rc.readBroadcast(11);
-					targetRobotLocation = new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10));
 				}
+				targetRobotLocation = new MapLocation((float)rc.readBroadcast(9), (float)rc.readBroadcast(10));
 				if(rc.getLocation().distanceTo(targetRobotLocation) < RobotType.SOLDIER.sensorRadius){
 					MapLocation[] enemyArchs = rc.getInitialArchonLocations(enemy);
+					MapLocation arch = rc.getInitialArchonLocations(rc.getTeam())[0];
 					if((int)targetRobotLocation.x == (int) initialEnemyArchon.x && (int)targetRobotLocation.y == (int) initialEnemyArchon.y) {
 						if(enemyArchs.length > 1) {
 							rc.broadcast(9, (int)enemyArchs[1].x);
 							rc.broadcast(10, (int)enemyArchs[1].y);
 						} else {
-							MapLocation arch =rc.getInitialArchonLocations(rc.getTeam())[0];
 							rc.broadcast(9, (int)arch.x);
 							rc.broadcast(10, (int)arch.y);
 						}
@@ -156,8 +156,8 @@ public class Soldier extends BaseRobot {
 							rc.broadcast(10, (int)(enemyArchs[1].y + enemyArchs[0].y)/2);
 						}
 					} else {
-						rc.broadcast(9, (int)enemyArchs[0].x);
-						rc.broadcast(10, (int)enemyArchs[0].y);
+						rc.broadcast(9, (int)arch.x);
+						rc.broadcast(10, (int)arch.y);
 					}
 				}
 			}else{

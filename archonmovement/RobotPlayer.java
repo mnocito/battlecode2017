@@ -24,13 +24,6 @@ public strictfp class RobotPlayer {
         Scout scout = new Scout(rc);
         Tank tank = new Tank(rc);
         Lumberjack lumber = new Lumberjack(rc);
-        float teamBullets = rc.getTeamBullets();
-		if(teamBullets >= 1000 && rc.getTeamVictoryPoints() == 900) {
-			rc.donate(teamBullets);
-		}
-        if(teamBullets > 1500){
-			rc.donate(1000);
-		}
         switch (rc.getType()) {
             case ARCHON:
             	arc.init();
