@@ -21,7 +21,12 @@ public class Lumberjack extends BaseRobot {
 		TreeInfo[] trees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
 		TreeInfo[] enemTrees = null;
 		enemTrees = rc.senseNearbyTrees(GameConstants.LUMBERJACK_STRIKE_RADIUS, rc.getTeam().opponent());
-		RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+		RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());		
+		TreeInfo[] neutralTrees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
+		for(TreeInfo t: neutralTrees) {
+			if(rc.canShake(t.ID))
+				rc.shake(t.ID);
+		}
 		if(robots.length > 0) {
 			if (rc.readBroadcast(11) != robots[0].getID()) {
 				rc.broadcast(9, (int) robots[0].getLocation().x);

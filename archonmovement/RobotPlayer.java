@@ -24,12 +24,6 @@ public strictfp class RobotPlayer {
         Scout scout = new Scout(rc);
         Tank tank = new Tank(rc);
         Lumberjack lumber = new Lumberjack(rc);
-		TreeInfo[] trees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
-		for(TreeInfo t : trees) {
-			if(rc.canShake(t.ID)) 
-				rc.shake(t.ID);
-		}
-		
         switch (rc.getType()) {
             case ARCHON:
             	arc.init();

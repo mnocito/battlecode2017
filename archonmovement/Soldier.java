@@ -31,6 +31,11 @@ public class Soldier extends BaseRobot {
 		RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 		RobotInfo robot = null;
 		MapLocation lastSpottedEnemy = null;
+		TreeInfo[] neutralTrees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
+		for(TreeInfo t: neutralTrees) {
+			if(rc.canShake(t.ID))
+				rc.shake(t.ID);
+		}
 		if (robots.length > 0) {
 			robot = robots[0];
 			float archonX = Float.intBitsToFloat(rc.readBroadcast(GameConstants.BROADCAST_MAX_CHANNELS - 5));

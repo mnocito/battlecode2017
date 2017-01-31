@@ -35,6 +35,11 @@ public class Gardener extends BaseRobot {
 		if(teamBullets/rc.getVictoryPointCost() > 40){
 			rc.donate(10*rc.getVictoryPointCost());
 		}
+		TreeInfo[] neutralTrees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
+		for(TreeInfo t: neutralTrees) {
+			if(rc.canShake(t.ID))
+				rc.shake(t.ID);
+		}
 		//	float teamBullets = rc.getTeamBullets();
 		roundsExisted++;
 		RobotInfo[] robots = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
@@ -62,49 +67,45 @@ public class Gardener extends BaseRobot {
 	void gardenerMove() throws GameActionException{
 		System.out.println("running");
 		boolean first, second, third, fourth, fifth, sixth;
-		for(int j = 0; j < 6; j++) {
-			j = 7;
-			float resultNum = (float)(Math.PI/36)*j;
-			for(int i = 0; i < 6; i++){
-				nodes[i] = new MapLocation(rc.getLocation().x + dirList[i].rotateLeftDegrees(resultNum).getDeltaX(RobotType.GARDENER.bodyRadius + GameConstants.BULLET_TREE_RADIUS), rc.getLocation().y + dirList[i].rotateLeftDegrees(resultNum).getDeltaY(RobotType.GARDENER.bodyRadius + GameConstants.BULLET_TREE_RADIUS));
-				rc.setIndicatorDot(nodes[i], 30, 30, 30);
-			}
-			first = (!rc.isCircleOccupiedExceptByThisRobot(nodes[0], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[0], GameConstants.BULLET_TREE_RADIUS));
-			second = (!rc.isCircleOccupiedExceptByThisRobot(nodes[1], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[1], GameConstants.BULLET_TREE_RADIUS));
-			third = (!rc.isCircleOccupiedExceptByThisRobot(nodes[2], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[2], GameConstants.BULLET_TREE_RADIUS));
-			fourth = (!rc.isCircleOccupiedExceptByThisRobot(nodes[3], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[3], GameConstants.BULLET_TREE_RADIUS));
-			fifth = (!rc.isCircleOccupiedExceptByThisRobot(nodes[4], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[4], GameConstants.BULLET_TREE_RADIUS));
-			sixth = (!rc.isCircleOccupiedExceptByThisRobot(nodes[5], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[5], GameConstants.BULLET_TREE_RADIUS));
-			System.out.println(first);
-			System.out.println(second);
-			System.out.println(third);
-			System.out.println(fourth);
-			System.out.println(fifth);
-			System.out.println(sixth);
+		for(int i = 0; i < 6; i++){
+			nodes[i] = new MapLocation(rc.getLocation().x + dirList[i].getDeltaX(RobotType.GARDENER.bodyRadius + GameConstants.BULLET_TREE_RADIUS), rc.getLocation().y + dirList[i].getDeltaY(RobotType.GARDENER.bodyRadius + GameConstants.BULLET_TREE_RADIUS));
+			rc.setIndicatorDot(nodes[i], 30, 30, 30);
+		}
+		first = (!rc.isCircleOccupiedExceptByThisRobot(nodes[0], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[0], GameConstants.BULLET_TREE_RADIUS));
+		second = (!rc.isCircleOccupiedExceptByThisRobot(nodes[1], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[1], GameConstants.BULLET_TREE_RADIUS));
+		third = (!rc.isCircleOccupiedExceptByThisRobot(nodes[2], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[2], GameConstants.BULLET_TREE_RADIUS));
+		fourth = (!rc.isCircleOccupiedExceptByThisRobot(nodes[3], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[3], GameConstants.BULLET_TREE_RADIUS));
+		fifth = (!rc.isCircleOccupiedExceptByThisRobot(nodes[4], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[4], GameConstants.BULLET_TREE_RADIUS));
+		sixth = (!rc.isCircleOccupiedExceptByThisRobot(nodes[5], GameConstants.BULLET_TREE_RADIUS) && rc.onTheMap(nodes[5], GameConstants.BULLET_TREE_RADIUS));
+		System.out.println(first);
+		System.out.println(second);
+		System.out.println(third);
+		System.out.println(fourth);
+		System.out.println(fifth);
+		System.out.println(sixth);
 
-			if(first && second && third && fourth && fifth && sixth) {
-				movement = false;
-				totalTrees = 6;
-				return;
-			} else if(first && third && fifth && roundsExisted > 80) {
-				totalTrees = 3;
-				addedNum = 0;
-				movement = false;
-			} else if(second && fourth && sixth && roundsExisted > 80) {
-				totalTrees = 3;
-				addedNum = 1;
-				movement = false;
-			} else if(first && fourth && roundsExisted > 120) {
-				totalTrees = 2;
-				addedNum = 0;
-				movement = false;
-			} else if(second && fifth && roundsExisted > 120) {
-				totalTrees = 2;
-				addedNum = 1;
-				movement = false;
-			} else {
-				randMove();
-			}
+		if(first && second && third && fourth && fifth && sixth) {
+			movement = false;
+			totalTrees = 6;
+			return;
+		} else if(first && third && fifth && roundsExisted > 80) {
+			totalTrees = 3;
+			addedNum = 0;
+			movement = false;
+		} else if(second && fourth && sixth && roundsExisted > 80) {
+			totalTrees = 3;
+			addedNum = 1;
+			movement = false;
+		} else if(first && fourth && roundsExisted > 120) {
+			totalTrees = 2;
+			addedNum = 0;
+			movement = false;
+		} else if(second && fifth && roundsExisted > 120) {
+			totalTrees = 2;
+			addedNum = 1;
+			movement = false;
+		} else {
+			randMove();
 		}
 	}
 	public void moveTowards(Direction dir) throws GameActionException{
